@@ -1,0 +1,44 @@
+{
+	"name": "lemuria-pbem/scenario-fantasya",
+	"description": "This library contains role-playing elements for the Fantasya game engine.",
+	"type": "library",
+	"keywords": ["atlantis", "engine", "eressea", "fantasy", "fantasya", "game", "lemuria", "npc", "pbem", "pbm", "quest", "rpg", "strategy", "world"],
+	"license": "GPL-3.0",
+	"authors": [
+		{
+			"name": "Sascha Ternes",
+			"email": "lemuria@online.de"
+		}
+	],
+	"version": "1.5.0",
+	"time": "2023-10-26",
+
+	"require": {
+		"php": "~8.2",
+		"ext-mbstring": "~8.2",
+		"lemuria-pbem/engine-fantasya": "~1.5.0|dev-feature/NPC",
+		"lemuria-pbem/lemuria": "~1.5.0|dev-feature/NPC",
+		"lemuria-pbem/model-fantasya": "~1.5.0|dev-feature/NPC",
+		"monolog/monolog": "~3.4"
+	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "git@github.com:lemuria-pbem/engine-fantasya.git"
+		},
+		{
+			"type": "vcs",
+			"url": "git@github.com:lemuria-pbem/lemuria.git"
+		},
+		{
+			"type": "vcs",
+			"url": "git@github.com:lemuria-pbem/model-fantasya.git"
+		}
+	],
+
+	"autoload": {
+		"psr-4": {
+			"Lemuria\\Scenario\\Fantasya\\": "src/"
+		}
+	}
+}

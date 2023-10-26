@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Lemuria" pattern="file[scenario-fantasya]:src//*" />
+</component>
