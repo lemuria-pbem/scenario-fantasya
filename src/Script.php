@@ -2,7 +2,7 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
-use Lemuria\Engine\Fantasya\Exception\ScriptException;
+use Lemuria\Scenario\Fantasya\Exception\ScriptException;
 use Lemuria\Storage\Ini\SectionList;
 
 class Script
