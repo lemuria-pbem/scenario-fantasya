@@ -13,6 +13,8 @@ interface Scene
 	 */
 	public function parse(Section $section): static;
 
+	public function isDue(): bool;
+
 	/**
 	 * @throws ScriptException
 	 */

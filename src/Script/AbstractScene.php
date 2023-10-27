@@ -5,6 +5,7 @@ namespace Lemuria\Scenario\Fantasya\Script;
 use Lemuria\Engine\Fantasya\Context;
 use Lemuria\Engine\Fantasya\Factory\CommandFactory;
 use Lemuria\Engine\Fantasya\State;
+use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Model\UnitMapper;
@@ -34,6 +35,16 @@ abstract class AbstractScene implements Scene
 			self::$factory = self::$context->Factory();
 			self::$mapper  = new UnitMapper();
 		}
+	}
+
+	public function isDue(): bool {
+		$round = $this->getOptionalValue('Runde');
+		if ($round) {
+			if (Lemuria::Calendar()->Round() !== (int)$round) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public function parse(Section $section): static {

@@ -29,7 +29,12 @@ class Script
 	public function play(): static {
 		foreach ($this->data->getSections() as $section) {
 			try {
-				self::$factory->create($section)->play();
+				$scene = self::$factory->create($section);
+				if ($scene->isDue()) {
+					$scene->play();
+				} else {
+					Lemuria::Log()->debug('Scene of section ' . $section->Name() . ' is not scheduled to play this round.');
+				}
 			} catch (ParseException|UnknownSceneException $e) {
 				Lemuria::Log()->critical($e->getMessage());
 			} catch (ScriptException $e) {
