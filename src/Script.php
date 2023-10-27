@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
+use Lemuria\Exception\IdException;
 use Lemuria\Lemuria;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\ScriptException;
@@ -10,11 +11,11 @@ use Lemuria\Storage\Ini\SectionList;
 
 class Script
 {
-	protected static ?SceneFactory $factory = null;
+	protected static ?Factory $factory = null;
 
 	public function __construct(private readonly string $file, private SectionList $data) {
 		if (!self::$factory) {
-			self::$factory = new SceneFactory();
+			self::$factory = new Factory();
 		}
 	}
 
@@ -29,7 +30,7 @@ class Script
 	public function play(): static {
 		foreach ($this->data->getSections() as $section) {
 			try {
-				$scene = self::$factory->create($section);
+				$scene = self::$factory->createScene($section);
 				if ($scene->isDue()) {
 					$scene->play();
 				} else {

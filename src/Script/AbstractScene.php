@@ -8,6 +8,7 @@ use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
+use Lemuria\Scenario\Fantasya\Factory;
 use Lemuria\Scenario\Fantasya\Model\UnitMapper;
 use Lemuria\Scenario\Fantasya\Scene;
 use Lemuria\Storage\Ini\Lines;
@@ -28,7 +29,7 @@ abstract class AbstractScene implements Scene
 
 	private static UnitMapper $mapper;
 
-	public function __construct() {
+	public function __construct(protected readonly Factory $scenarioFactory) {
 		if (!self::$context) {
 			self::$context = new Context(State::getInstance());
 			self::$context->setParty(State::getInstance()->getTurnOptions()->Finder()->Party()->findByType(Type::NPC));
@@ -51,6 +52,10 @@ abstract class AbstractScene implements Scene
 		$this->section = $section;
 		$this->values  = $section->Values();
 		$this->lines   = $section->Lines();
+		return $this;
+	}
+
+	public function setArguments(string $arguments): static {
 		return $this;
 	}
 

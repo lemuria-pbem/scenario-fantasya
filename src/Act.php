@@ -4,18 +4,13 @@ namespace Lemuria\Scenario\Fantasya;
 
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\ScriptException;
-use Lemuria\Storage\Ini\Section;
 
-interface Scene
+interface Act
 {
 	/**
 	 * @throws ParseException
 	 */
-	public function parse(Section $section): static;
-
-	public function setArguments(string $arguments): static;
-
-	public function isDue(): bool;
+	public function parse(Macro $macro): static;
 
 	/**
 	 * @throws ScriptException

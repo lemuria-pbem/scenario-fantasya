@@ -1,6 +1,6 @@
 <?php
 declare(strict_types = 1);
-namespace Lemuria\Scenario\Fantasya\Script;
+namespace Lemuria\Scenario\Fantasya\Script\Scene;
 
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Engine\Fantasya\Message\Unit\TempMessage;
@@ -18,6 +18,7 @@ use Lemuria\Model\Fantasya\Resources;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Exception\DuplicateUnitException;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
+use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Storage\Ini\Section;
 
 class CreateUnit extends AbstractScene
@@ -47,7 +48,7 @@ class CreateUnit extends AbstractScene
 		$this->name        = $this->getOptionalValue('Name');
 		$this->description = $this->getOptionalValue('Beschreibung');
 		$this->race        = $this->factory()->parseRace($this->getValue('Rasse'));
-		$this->size        = (int)$this->getValue('Anzahl');
+		$this->size        = (int)$this->getOptionalValue('Anzahl');
 		$this->region      = Region::get(Id::fromId($this->getValue('Region')));
 		$this->knowledge   = new Knowledge();
 		$this->inventory   = new Resources();
@@ -73,6 +74,7 @@ class CreateUnit extends AbstractScene
 			$unit->setDescription($this->description);
 		}
 		$unit->setRace($this->race);
+		$unit->setSize($this->size > 0 ? $this->size : 1);
 		$unit->Knowledge()->fill($this->knowledge);
 		$unit->Inventory()->fill($this->inventory);
 
