@@ -15,7 +15,7 @@ class Factory
 {
 	protected const SCENE = ['Einheit' => CreateUnit::class, 'Skript' => SetOrders::class];
 
-	protected const ACT = ['Markt' => Market::class];
+	protected const ACT = ['Marktstand' => Market::class];
 
 	/**
 	 * @throws ParseException

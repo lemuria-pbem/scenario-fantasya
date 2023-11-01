@@ -59,7 +59,7 @@ abstract class AbstractScene implements Scene
 		return $this;
 	}
 
-	protected function context(): Context {
+	public function context(): Context {
 		return self::$context;
 	}
 
