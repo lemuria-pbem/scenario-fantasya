@@ -16,4 +16,8 @@ interface Act
 	 * @throws ScriptException
 	 */
 	public function play(): static;
+
+	public function getChainResult(): bool;
+
+	public function prepareNext(): static;
 }

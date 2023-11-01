@@ -2,7 +2,6 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
-use Lemuria\Exception\IdException;
 use Lemuria\Lemuria;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\ScriptException;
@@ -12,6 +11,11 @@ use Lemuria\Storage\Ini\SectionList;
 class Script
 {
 	protected static ?Factory $factory = null;
+
+	/**
+	 * @var array<Scene>
+	 */
+	protected array $scenes = [];
 
 	public function __construct(private readonly string $file, private SectionList $data) {
 		if (!self::$factory) {
@@ -33,6 +37,7 @@ class Script
 				$scene = self::$factory->createScene($section);
 				if ($scene->isDue()) {
 					$scene->play();
+					$this->scenes[] = $scene;
 				} else {
 					Lemuria::Log()->debug('Scene of section ' . $section->Name() . ' is not scheduled to play this round.');
 				}
@@ -40,6 +45,17 @@ class Script
 				Lemuria::Log()->critical($e->getMessage());
 			} catch (ScriptException $e) {
 				Lemuria::Log()->error($e->getMessage());
+			}
+		}
+		return $this;
+	}
+
+	public function prepareNext(): static {
+		$this->data->clear();
+		foreach ($this->scenes as $scene) {
+			$section = $scene->prepareNext();
+			if ($section) {
+				$this->data->add($section);
 			}
 		}
 		return $this;

@@ -17,6 +17,8 @@ use Lemuria\Storage\Ini\Values;
 
 abstract class AbstractScene implements Scene
 {
+	private const ROUND = 'Runde';
+
 	protected Section $section;
 
 	protected Values $values;
@@ -38,8 +40,12 @@ abstract class AbstractScene implements Scene
 		}
 	}
 
+	public function Section(): Section {
+		return $this->section;
+	}
+
 	public function isDue(): bool {
-		$round = $this->getOptionalValue('Runde');
+		$round = $this->getOptionalValue(self::ROUND);
 		if ($round) {
 			if (Lemuria::Calendar()->Round() !== (int)$round) {
 				return false;
@@ -53,6 +59,10 @@ abstract class AbstractScene implements Scene
 		$this->values  = $section->Values();
 		$this->lines   = $section->Lines();
 		return $this;
+	}
+
+	public function hasRound(): bool {
+		return (bool)$this->getOptionalValue(self::ROUND);
 	}
 
 	public function setArguments(string $arguments): static {

@@ -23,5 +23,6 @@ final class DelegatedScenario extends DelegatedEvent
 
 	protected function createDelegates(): void {
 		$this->delegates[] = new NPC($this->state);
+		$this->delegates[] = new MarketTrade($this->state);
 	}
 }

@@ -93,6 +93,13 @@ class CreateUnit extends AbstractScene
 		return $this;
 	}
 
+	public function prepareNext(): ?Section {
+		if ($this->hasRound()) {
+			return $this->Section();
+		}
+		return null;
+	}
+
 	/**
 	 * @throws ParseException
 	 */

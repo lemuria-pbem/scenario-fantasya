@@ -27,6 +27,11 @@ class SetOrders extends AbstractScene
 
 	protected ?Id $id = null;
 
+	/**
+	 * @var array<Act>
+	 */
+	protected array $chain = [];
+
 	public function setArguments(string $arguments): static {
 		if ($arguments) {
 			$this->id = Id::fromId($arguments);
@@ -66,6 +71,24 @@ class SetOrders extends AbstractScene
 		foreach ($this->acts as $act) {
 			$act->play();
 		}
+		return $this;
+	}
+
+	public function prepareNext(): ?Section {
+		$this->lines->clear();
+		foreach ($this->chain as $act) {
+			if ($act->getChainResult()) {
+				break;
+			}
+		}
+		foreach ($this->acts as $act) {
+			$act->prepareNext();
+		}
+		return $this->section;
+	}
+
+	public function chain(Act $act): static {
+		$this->chain[] = $act;
 		return $this;
 	}
 }

@@ -16,4 +16,9 @@ abstract class AbstractAct implements Act
 		$this->macro = $macro;
 		return $this;
 	}
+
+	public function prepareNext(): static {
+		$this->scene->Section()->Lines()->add((string)$this->macro);
+		return $this;
+	}
 }

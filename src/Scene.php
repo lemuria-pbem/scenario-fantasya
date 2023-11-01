@@ -21,4 +21,6 @@ interface Scene
 	 * @throws ScriptException
 	 */
 	public function play(): static;
+
+	public function prepareNext(): ?Section;
 }
