@@ -18,7 +18,7 @@ use Lemuria\Storage\Ini\Values;
 
 class Market extends AbstractAct
 {
-	private const LAST_TRADE = 'LetzterHandel';
+	private const string LAST_TRADE = 'LetzterHandel';
 
 	private Values $values;
 

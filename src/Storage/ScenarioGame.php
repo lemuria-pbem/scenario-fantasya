@@ -8,7 +8,7 @@ use Lemuria\Storage\IniProvider;
 
 class ScenarioGame extends LemuriaGame
 {
-	private const SCRIPTS_DIR = 'scripts';
+	private const string SCRIPTS_DIR = 'scripts';
 
 	/**
 	 * Get NPC scripts data.

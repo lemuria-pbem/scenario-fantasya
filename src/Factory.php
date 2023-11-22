@@ -13,9 +13,15 @@ use Lemuria\Storage\Ini\Section;
 
 class Factory
 {
-	protected const SCENE = ['Einheit' => CreateUnit::class, 'Skript' => SetOrders::class];
+	/**
+	 * @type array<string, string>
+	 */
+	protected const array SCENE = ['Einheit' => CreateUnit::class, 'Skript' => SetOrders::class];
 
-	protected const ACT = ['Marktstand' => Market::class];
+	/**
+	 * @type array<string, string>
+	 */
+	protected const array ACT = ['Marktstand' => Market::class];
 
 	/**
 	 * @throws ParseException

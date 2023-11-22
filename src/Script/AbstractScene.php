@@ -17,7 +17,7 @@ use Lemuria\Storage\Ini\Values;
 
 abstract class AbstractScene implements Scene
 {
-	private const ROUND = 'Runde';
+	private const string ROUND = 'Runde';
 
 	protected Section $section;
 
