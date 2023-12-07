@@ -71,10 +71,7 @@ class Market extends AbstractAct
 			}
 		}
 
-		/** @var SetOrders $scene */
-		$scene = $this->scene;
-		$scene->chain($this);
-		return $this;
+		return $this->addToChain();
 	}
 
 	public function getChainResult(): bool {

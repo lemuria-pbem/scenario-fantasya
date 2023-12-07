@@ -4,6 +4,7 @@ namespace Lemuria\Scenario\Fantasya\Script;
 
 use Lemuria\Scenario\Fantasya\Act;
 use Lemuria\Scenario\Fantasya\Macro;
+use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
 
 abstract class AbstractAct implements Act
 {
@@ -19,6 +20,13 @@ abstract class AbstractAct implements Act
 
 	public function prepareNext(): static {
 		$this->scene->Section()->Lines()->add((string)$this->macro);
+		return $this;
+	}
+
+	protected function addToChain(): static {
+		/** @var SetOrders $scene */
+		$scene = $this->scene;
+		$scene->chain($this);
 		return $this;
 	}
 }

@@ -7,6 +7,7 @@ use Lemuria\Scenario\Fantasya\Exception\UnknownActException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\Act\Market;
+use Lemuria\Scenario\Fantasya\Script\Act\Trip;
 use Lemuria\Scenario\Fantasya\Script\Scene\CreateUnit;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
 use Lemuria\Storage\Ini\Section;
@@ -16,12 +17,18 @@ class Factory
 	/**
 	 * @type array<string, string>
 	 */
-	protected const array SCENE = ['Einheit' => CreateUnit::class, 'Skript' => SetOrders::class];
+	protected const array SCENE = [
+		'Einheit' => CreateUnit::class,
+		'Skript'  => SetOrders::class
+	];
 
 	/**
 	 * @type array<string, string>
 	 */
-	protected const array ACT = ['Marktstand' => Market::class];
+	protected const array ACT = [
+		'Marktstand' => Market::class,
+		'Reise'      => Trip::class
+	];
 
 	/**
 	 * @throws ParseException
