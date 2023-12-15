@@ -42,23 +42,23 @@ trait TripTrait
 		return $n;
 	}
 
-	private function parseDestination(string $id): void {
+	protected function parseDestination(string $id): void {
 		$this->destination = Region::get(Id::fromId($id));
 	}
 
-	private function setStartFromUnit(): void {
+	protected function setStartFromUnit(): void {
 		if (!$this->unit) {
 			$this->unit  = $this->scene->context()->Unit();
 			$this->start = $this->unit->Region();
 		}
 	}
 
-	private function hasReachedDestination(): bool {
+	protected function hasReachedDestination(): bool {
 		$this->setStartFromUnit();
 		return $this->start === $this->destination;
 	}
 
-	private function findWay(string $pathStrategy): PathStrategy {
+	protected function findWay(string $pathStrategy): PathStrategy {
 		$this->setStartFromUnit();
 		return Lemuria::World()->findPath($this->start, $this->destination, $pathStrategy);
 	}

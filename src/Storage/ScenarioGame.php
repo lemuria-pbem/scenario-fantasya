@@ -17,7 +17,7 @@ class ScenarioGame extends LemuriaGame
 	 */
 	public function getScripts(): array {
 		$data       = [];
-		$scriptsDir = self::GAME_DIR . DIRECTORY_SEPARATOR . self::SCRIPTS_DIR;
+		$scriptsDir = $this->config->getStoragePath() . DIRECTORY_SEPARATOR . self::SCRIPTS_DIR;
 		$pathPos    = strlen($scriptsDir) + 1;
 		$provider   = new IniProvider($scriptsDir);
 		foreach ($provider->glob() as $path) {
@@ -33,7 +33,7 @@ class ScenarioGame extends LemuriaGame
 	 * @var array<string, SectionList> $scripts
 	 */
 	public function setScripts(array $scripts): static {
-		$scriptsDir = self::GAME_DIR . DIRECTORY_SEPARATOR . self::SCRIPTS_DIR;
+		$scriptsDir = $this->config->getStoragePath() . DIRECTORY_SEPARATOR . self::SCRIPTS_DIR;
 		$provider   = new IniProvider($scriptsDir);
 		foreach ($scripts as $file => $data) {
 			$provider->write($file, $data);

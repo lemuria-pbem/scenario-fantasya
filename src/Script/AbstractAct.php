@@ -8,7 +8,7 @@ use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
 
 abstract class AbstractAct implements Act
 {
-	protected readonly Macro $macro;
+	protected Macro $macro;
 
 	public function __construct(protected readonly AbstractScene $scene) {
 	}

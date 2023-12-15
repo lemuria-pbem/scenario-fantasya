@@ -38,7 +38,8 @@ class Market extends AbstractAct
 	public function parse(Macro $macro): static {
 		parent::parse($macro);
 		$this->maxRounds = (int)$macro->getParameter();
-		$this->lastTrade = (int)($this->values[self::LAST_TRADE] ?? 0);
+		$lastTrade       = $this->values[self::LAST_TRADE] ?? null;
+		$this->lastTrade = (int)($lastTrade?->__toString());
 		return $this;
 	}
 
@@ -82,7 +83,8 @@ class Market extends AbstractAct
 	}
 
 	public function prepareNext(): static {
-		$this->values[self::LAST_TRADE] = $this->lastTrade;
+		unset($this->values[self::LAST_TRADE]);
+		$this->values[self::LAST_TRADE] = (string)$this->lastTrade;
 		return parent::prepareNext();
 	}
 
@@ -95,6 +97,6 @@ class Market extends AbstractAct
 	}
 
 	protected function isInMarket(): bool {
-		return $this->scene->context()->Unit()->Construction()->Building() instanceof MarketBuilding;
+		return $this->scene->context()->Unit()->Construction()?->Building() instanceof MarketBuilding;
 	}
 }

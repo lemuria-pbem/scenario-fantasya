@@ -50,7 +50,10 @@ class SetOrders extends AbstractScene
 		if (!$this->id) {
 			throw new ParseException('No unit defined in this script.');
 		}
-		$this->context()->setUnit(Unit::get($this->id));
+
+		$mapper = $this->mapper();
+		$unit   = $mapper->has($this->id) ? $mapper->getUnit($this->id) : Unit::get($this->id);
+		$this->context()->setUnit($unit);
 
 		foreach ($this->lines as $line) {
 			$macro = Macro::parse($line);
@@ -76,6 +79,9 @@ class SetOrders extends AbstractScene
 
 	public function prepareNext(): ?Section {
 		$this->lines->clear();
+		foreach ($this->orders as $command) {
+			$this->lines->add((string)$command->Phrase());
+		}
 		foreach ($this->chain as $act) {
 			if ($act->getChainResult()) {
 				break;

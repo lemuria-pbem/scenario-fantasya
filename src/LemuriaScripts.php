@@ -30,7 +30,7 @@ class LemuriaScripts implements Scripts
 	public function save(): static {
 		$scripts = [];
 		foreach ($this->scripts as $script) {
-			$data = $script->Data();
+			$data = $script->prepareNext()->Data();
 			if ($data->count() > 0) {
 				$scripts[$script->File()] = $data;
 			}

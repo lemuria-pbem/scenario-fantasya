@@ -7,6 +7,7 @@ use Lemuria\Scenario\Fantasya\Exception\UnknownActException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\Act\Market;
+use Lemuria\Scenario\Fantasya\Script\Act\Roundtrip;
 use Lemuria\Scenario\Fantasya\Script\Act\Trip;
 use Lemuria\Scenario\Fantasya\Script\Scene\CreateUnit;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
@@ -27,7 +28,8 @@ class Factory
 	 */
 	protected const array ACT = [
 		'Marktstand' => Market::class,
-		'Reise'      => Trip::class
+		'Reise'      => Trip::class,
+		'Rundreise'  => Roundtrip::class
 	];
 
 	/**
@@ -38,8 +40,8 @@ class Factory
 		$name  = $section->Name();
 		$space = strpos($name, ' ');
 		if ($space > 1) {
-			$name      = substr($name, 0, $space);
 			$arguments = trim(substr($name, $space));
+			$name      = substr($name, 0, $space);
 		} else {
 			$arguments = '';
 		}

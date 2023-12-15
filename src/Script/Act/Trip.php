@@ -19,12 +19,27 @@ class Trip extends AbstractAct
 	}
 
 	public function play(): static {
-		if ($this->hasReachedDestination()) {
+		if (!$this->startTrip()) {
 			return $this;
 		}
+		if (!$this->takeTrip()) {
+			return $this;
+		}
+		return $this->endTrip();
+	}
+
+	public function getChainResult(): bool {
+		return $this->scene->context()->Unit()->Region() !== $this->destination;
+	}
+
+	protected function startTrip(): bool {
+		return !$this->hasReachedDestination();
+	}
+
+	protected function takeTrip(): bool {
 		if ($this->unit->Vessel()) {
 			Lemuria::Log()->debug('Trip act: ' . $this->unit . ' is awaiting transport to ' . $this->destination . '.');
-			return $this;
+			return false;
 		}
 
 		$path = $this->findWay(ShortestPath::class);
@@ -34,11 +49,10 @@ class Trip extends AbstractAct
 		} else {
 			Lemuria::Log()->error('There is no viable path from ' . $this->start . ' to ' . $this->destination . '.');
 		}
-
-		return $this->addToChain();
+		return true;
 	}
 
-	public function getChainResult(): bool {
-		return $this->scene->context()->Unit()->Region() !== $this->destination;
+	protected function endTrip(): static {
+		return $this->addToChain();
 	}
 }

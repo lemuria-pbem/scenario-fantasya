@@ -105,12 +105,10 @@ abstract class AbstractScene implements Scene
 		if ($this->values->offsetExists($name)) {
 			$values = [];
 			foreach ($this->values->offsetGet($name) as $value) {
-				foreach ($value as $item) {
-					foreach (explode(',', $item) as $part) {
-						$part = trim($part);
-						if ($part) {
-							$values[] = $part;
-						}
+				foreach (explode(',', $value) as $part) {
+					$part = trim($part);
+					if ($part) {
+						$values[] = $part;
 					}
 				}
 			}
