@@ -14,7 +14,7 @@ class LemuriaScripts implements Scripts
 
 	public function load(): static {
 		foreach (Lemuria::Game()->getScripts() as $file => $data) {
-			$script = new Script($file, $data);
+			$script          = new Script($file, $data);
 			$this->scripts[] = $script;
 		}
 		return $this;
