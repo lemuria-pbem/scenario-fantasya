@@ -61,6 +61,11 @@ abstract class AbstractScene implements Scene
 		return $this;
 	}
 
+	public function play(): static {
+		Lemuria::Log()->debug('Playing scene ' . $this->section->Name() . '.');
+		return $this;
+	}
+
 	public function hasRound(): bool {
 		return (bool)$this->getOptionalValue(self::ROUND);
 	}

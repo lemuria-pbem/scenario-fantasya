@@ -32,6 +32,7 @@ class Script
 	}
 
 	public function play(): static {
+		Lemuria::Log()->debug('Playing NPC script ' . basename($this->file) . '.');
 		foreach ($this->data->getSections() as $section) {
 			try {
 				$scene = self::$factory->createScene($section);

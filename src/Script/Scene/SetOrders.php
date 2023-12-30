@@ -6,6 +6,7 @@ use Lemuria\Engine\Fantasya\Command;
 use Lemuria\Engine\Fantasya\Phrase;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Id;
+use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Act;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
@@ -53,8 +54,11 @@ class SetOrders extends AbstractScene
 
 		$mapper = $this->mapper();
 		$unit   = $mapper->has($this->id) ? $mapper->getUnit($this->id) : Unit::get($this->id);
-		$this->context()->setUnit($unit);
+		if ($unit->Party()->Type() !== Type::NPC) {
+			throw new ParseException($unit . ' is no NPC unit.');
+		}
 
+		$this->context()->setUnit($unit);
 		foreach ($this->lines as $line) {
 			$macro = Macro::parse($line);
 			if ($macro) {
@@ -67,6 +71,7 @@ class SetOrders extends AbstractScene
 	}
 
 	public function play(): static {
+		parent::play();
 		$state = State::getInstance();
 		foreach ($this->orders as $command) {
 			$state->injectIntoTurn($command);

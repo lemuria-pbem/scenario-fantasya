@@ -62,6 +62,7 @@ class CreateUnit extends AbstractScene
 	}
 
 	public function play(): static {
+		parent::play();
 		$unit = new Unit();
 		$id   = $this->createId();
 		$unit->setId($id);

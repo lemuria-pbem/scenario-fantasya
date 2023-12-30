@@ -13,6 +13,7 @@ class LemuriaScripts implements Scripts
 	private array $scripts = [];
 
 	public function load(): static {
+		Lemuria::Log()->debug('Loading NPC scripts.');
 		foreach (Lemuria::Game()->getScripts() as $file => $data) {
 			$script          = new Script($file, $data);
 			$this->scripts[] = $script;
@@ -21,6 +22,7 @@ class LemuriaScripts implements Scripts
 	}
 
 	public function play(): static {
+		Lemuria::Log()->debug('Playing NPC scripts.');
 		foreach ($this->scripts as $script) {
 			$script->play();
 		}
@@ -28,6 +30,7 @@ class LemuriaScripts implements Scripts
 	}
 
 	public function save(): static {
+		Lemuria::Log()->debug('Saving MPC scripts.');
 		$scripts = [];
 		foreach ($this->scripts as $script) {
 			$data = $script->prepareNext()->Data();
