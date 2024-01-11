@@ -9,6 +9,7 @@ use Lemuria\Id;
 use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Ability;
+use Lemuria\Model\Fantasya\Construction;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Knowledge;
 use Lemuria\Model\Fantasya\Quantity;
@@ -16,6 +17,7 @@ use Lemuria\Model\Fantasya\Race;
 use Lemuria\Model\Fantasya\Region;
 use Lemuria\Model\Fantasya\Resources;
 use Lemuria\Model\Fantasya\Unit;
+use Lemuria\Model\Fantasya\Vessel;
 use Lemuria\Scenario\Fantasya\Exception\DuplicateUnitException;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
@@ -36,7 +38,11 @@ class CreateUnit extends AbstractScene
 
 	private int $size;
 
-	private Region $region;
+	private ?Region $region = null;
+
+	private ?Construction $construction = null;
+
+	private ?Vessel $vessel = null;
 
 	private Knowledge $knowledge;
 
@@ -49,7 +55,6 @@ class CreateUnit extends AbstractScene
 		$this->description = $this->getOptionalValue('Beschreibung');
 		$this->race        = $this->factory()->parseRace($this->getValue('Rasse'));
 		$this->size        = (int)$this->getOptionalValue('Anzahl');
-		$this->region      = Region::get(Id::fromId($this->getValue('Region')));
 		$this->knowledge   = new Knowledge();
 		$this->inventory   = new Resources();
 		foreach ($this->getValues('Talent') as $talent) {
@@ -57,6 +62,18 @@ class CreateUnit extends AbstractScene
 		}
 		foreach ($this->getValues('Besitz') as $item) {
 			$this->inventory->add($this->parseQuantity($item));
+		}
+		$region = $this->getOptionalValue('Region');
+		if ($region) {
+			$this->region = Region::get(Id::fromId($region));
+		}
+		$construction = $this->getOptionalValue('Gebäude');
+		if ($construction) {
+			$this->construction = Construction::get(Id::fromId($construction));
+		}
+		$vessel = $this->getOptionalValue('Schiff');
+		if ($vessel) {
+			$this->vessel = Vessel::get(Id::fromId($vessel));
 		}
 		return $this;
 	}

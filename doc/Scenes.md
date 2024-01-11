@@ -10,12 +10,16 @@ Skripte werden im INI-Format abgelegt; jede Sektion ist ein Skript.
 
 ### ID
 
-Die Nummer einer Einheit wird einheitlich mit dem Schlüssel _ID_ oder hinter dem
-Skriptnamen in der Sektion angegeben:
+Die Nummer einer Entität wird einheitlich mit dem Schlüssel _ID_ angegeben:
 
-    ID = e23
+    ID = n1
 
-    [Skript e23]
+#### Einheiten-ID
+
+Die Nummer einer Einheit kann auch hinter dem Skriptnamen in der Sektion
+angegeben werden:
+
+    [Skript n1]
 
 ### Runde
 
@@ -24,6 +28,14 @@ das Skript ausgeführt wird.
 
     Runde = 123
 
+### Name
+
+    Name = Galbrak
+
+### Beschreibung
+
+    Beschreibung = Hier steht ein Text.
+
 ## Einheit
 
 Das Skript **[Einheit]** erzeugt eine neue Einheit. Die _ID_ ist optional und
@@ -31,18 +43,39 @@ wird nur benötigt, wenn andere Skripte sich auf die neue Einheit beziehen.
 
 Notwendige Schlüssel:
 
-    Name = Galbrak, der Fahrende
     Rasse = Zwerg
-    Region = 1re
+    Region|Gebäude|Schiff = n1
 
 Optionale Schlüssel:
 
-    Anzahl = 1
-    Beschreibung = Ein fahrender Händler auf den Straßen von Lemuria.
+    Größe = 2
     Besitz = 1 Wagen, 2 Pferde, 2000 Silber
     Besitz = 20 Juwelen, 40 Balsam, 40 Pelze
     Talent = Handeln 5, Ausdauer 1
     Talent = Reiten 2
+
+## Gebäude
+
+Gebäude können auf drei verschiene Arten erzeugt werden:
+
+    [Gebäude]
+    [Burg]
+
+Wird **[Gebäude]** verwendet, muss der Gebäudetyp-Schlüssel angegeben werden.
+Bei **[Burg]** genügt es, wenn die Größe angegeben wird - dann erhält die Burg
+den zur Größe passenden Gebäudetyp. Der Gebäudetyp kann auch direkt als
+Sektionsname angegeben werden:
+
+    [Sägewerk]
+
+Notwendige Schlüssel:
+
+    Region = n1
+
+Optionale Schlüssel:
+
+    Gebäude = Holzfällerhütte    
+    Größe = 5
 
 ## Skript
 
