@@ -69,11 +69,11 @@ class CreateUnit extends AbstractScene
 		}
 		$construction = $this->getOptionalValue('Gebäude');
 		if ($construction) {
-			$this->construction = Construction::get(Id::fromId($construction));
+			$this->construction = Construction::get($this->mapper()->forAlias(Domain::Construction, Id::fromId($construction)));
 		}
 		$vessel = $this->getOptionalValue('Schiff');
 		if ($vessel) {
-			$this->vessel = Vessel::get(Id::fromId($vessel));
+			$this->vessel = Vessel::get($this->mapper()->forAlias(Domain::Vessel, Id::fromId($vessel)));
 		}
 		return $this;
 	}
@@ -86,6 +86,8 @@ class CreateUnit extends AbstractScene
 		$party = $this->context()->Party();
 		$party->People()->add($unit);
 		$this->region->Residents()->add($unit);
+		$this->construction?->Inhabitants()->add($unit);
+		$this->vessel?->Passengers()->add($unit);
 
 		$unit->setName($this->name ?? 'Einheit ' . $id);
 		if ($this->description) {
@@ -162,7 +164,7 @@ class CreateUnit extends AbstractScene
 	 */
 	protected function createId(): Id {
 		if ($this->id) {
-			if ($this->mapper()->has($this->id)) {
+			if ($this->mapper()->has(Domain::Unit, $this->id)) {
 				throw new DuplicateUnitException($this->id);
 			}
 			if (!Lemuria::Catalog()->has($this->id, Domain::Unit)) {

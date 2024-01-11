@@ -9,7 +9,7 @@ use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Factory;
-use Lemuria\Scenario\Fantasya\Model\UnitMapper;
+use Lemuria\Scenario\Fantasya\Model\IdMapper;
 use Lemuria\Scenario\Fantasya\Scene;
 use Lemuria\Storage\Ini\Lines;
 use Lemuria\Storage\Ini\Section;
@@ -31,14 +31,14 @@ abstract class AbstractScene implements Scene
 
 	private static CommandFactory $factory;
 
-	private static UnitMapper $mapper;
+	private static IdMapper $mapper;
 
 	public function __construct(protected readonly Factory $scenarioFactory) {
 		if (!self::$context) {
 			self::$context = new Context(State::getInstance());
 			self::$context->setParty(State::getInstance()->getTurnOptions()->Finder()->Party()->findByType(Type::NPC));
 			self::$factory = self::$context->Factory();
-			self::$mapper  = new UnitMapper();
+			self::$mapper  = new IdMapper();
 		}
 	}
 
@@ -84,7 +84,7 @@ abstract class AbstractScene implements Scene
 		return self::$factory;
 	}
 
-	protected function mapper(): UnitMapper {
+	protected function mapper(): IdMapper {
 		return self::$mapper;
 	}
 
