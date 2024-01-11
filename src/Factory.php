@@ -2,6 +2,10 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
+use Lemuria\Engine\Fantasya\Context;
+use Lemuria\Engine\Fantasya\Exception\UnknownItemException;
+use Lemuria\Engine\Fantasya\Factory\CommandFactory;
+use Lemuria\Exception\SingletonException;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownActException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
@@ -10,7 +14,9 @@ use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\Act\Market;
 use Lemuria\Scenario\Fantasya\Script\Act\Roundtrip;
 use Lemuria\Scenario\Fantasya\Script\Act\Trip;
-use Lemuria\Scenario\Fantasya\Script\Scene\CreateUnit;
+use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateConstruction;
+use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateUnit;
+use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateVessel;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
 use Lemuria\Storage\Ini\Section;
 
@@ -20,7 +26,10 @@ class Factory
 	 * @type array<string, string>
 	 */
 	protected const array SCENE = [
+		'Burg'    => CreateConstruction::class,
 		'Einheit' => CreateUnit::class,
+		'Gebäude' => CreateConstruction::class,
+		'Schiff'  => CreateVessel::class,
 		'Skript'  => SetOrders::class
 	];
 
@@ -32,6 +41,16 @@ class Factory
 		'Reise'      => Trip::class,
 		'Rundreise'  => Roundtrip::class
 	];
+
+	private CommandFactory $factory;
+
+	public function __construct(private readonly Context $context) {
+		$this->factory = new CommandFactory($context);
+	}
+
+	public function Context(): Context {
+		return $this->context;
+	}
 
 	/**
 	 * @throws ParseException
@@ -49,7 +68,12 @@ class Factory
 
 		$class = self::SCENE[$name] ?? null;
 		if (!$class) {
-			throw new UnknownSceneException($name);
+			try {
+				$this->factory->building($name);
+				$class = CreateConstruction::class;
+			} catch (SingletonException|UnknownItemException) {
+				throw new UnknownSceneException($name);
+			}
 		}
 		/** @var AbstractScene $scene */
 		$scene = new $class($this);

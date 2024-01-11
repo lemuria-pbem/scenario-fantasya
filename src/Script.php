@@ -2,6 +2,8 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
+use Lemuria\Engine\Fantasya\Context;
+use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\ScriptException;
@@ -10,7 +12,9 @@ use Lemuria\Storage\Ini\SectionList;
 
 class Script
 {
-	protected static ?Factory $factory = null;
+	protected static ?Context $context = null;
+
+	protected static Factory $factory;
 
 	/**
 	 * @var array<Scene>
@@ -18,8 +22,9 @@ class Script
 	protected array $scenes = [];
 
 	public function __construct(private readonly string $file, private SectionList $data) {
-		if (!self::$factory) {
-			self::$factory = new Factory();
+		if (!self::$context) {
+			self::$context = new Context(State::getInstance());
+			self::$factory = new Factory(self::$context);
 		}
 	}
 

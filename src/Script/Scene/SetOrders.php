@@ -6,6 +6,7 @@ use Lemuria\Engine\Fantasya\Command;
 use Lemuria\Engine\Fantasya\Phrase;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Id;
+use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Act;
@@ -60,7 +61,7 @@ class SetOrders extends AbstractScene
 		}
 
 		$mapper = $this->mapper();
-		if ($mapper->has($this->id)) {
+		if ($mapper->has(Domain::Unit, $this->id)) {
 			$unit     = $mapper->getUnit($this->id);
 			$this->id = $unit->Id();
 		} else {

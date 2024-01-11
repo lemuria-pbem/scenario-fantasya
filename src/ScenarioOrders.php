@@ -22,6 +22,8 @@ class ScenarioOrders extends LemuriaOrders
 	 */
 	private array $scenario = [];
 
+	private array $data = [];
+
 	private bool $isLoaded = false;
 
 	/**
@@ -41,7 +43,7 @@ class ScenarioOrders extends LemuriaOrders
 	public function load(): static {
 		parent::load();
 		if (!$this->isLoaded) {
-			foreach ($this->data[self::SCENARIO] ?? [] as $data) {
+			foreach ($this->data as $data) {
 				$this->validate($data, self::ID, Validate::Int);
 				$this->validate($data, self::ACTS, Validate::Array);
 				$this->getScenario(new Id($data[self::ID]))->unserialize($data[self::SCENARIO]);
@@ -63,8 +65,11 @@ class ScenarioOrders extends LemuriaOrders
 		foreach ($this->scenario as $id => $instructions /** @var Instructions $instructions */) {
 			$scenario[] = [self::ID => $id, self::ACTS => $instructions->serialize()];
 		}
-		$this->data[self::SCENARIO] = $scenario;
-		Lemuria::Game()->setOrders($this->data);
+		$this->data = $scenario;
+
+		$orders                 = Lemuria::Game()->getOrders();
+		$orders[self::SCENARIO] = $scenario;
+		Lemuria::Game()->setOrders($orders);
 		return $this;
 	}
 

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types = 1);
-namespace Lemuria\Scenario\Fantasya\Script\Scene;
+namespace Lemuria\Scenario\Fantasya\Script\Scene\Create;
 
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Id;
