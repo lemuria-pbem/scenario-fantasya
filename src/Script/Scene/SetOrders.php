@@ -12,7 +12,9 @@ use Lemuria\Scenario\Fantasya\Act;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
+use Lemuria\Scenario\Fantasya\Script\Due;
 use Lemuria\Storage\Ini\Section;
+use Lemuria\Storage\Ini\Value;
 
 class SetOrders extends AbstractScene
 {
@@ -33,9 +35,14 @@ class SetOrders extends AbstractScene
 	 */
 	protected array $chain = [];
 
+	private readonly string $idArgument;
+
 	public function setArguments(string $arguments): static {
 		if ($arguments) {
-			$this->id = Id::fromId($arguments);
+			$this->id         = Id::fromId($arguments);
+			$this->idArgument = (string)$this->id;
+		} else {
+			$this->idArgument = '';
 		}
 		return $this;
 	}
@@ -53,7 +60,12 @@ class SetOrders extends AbstractScene
 		}
 
 		$mapper = $this->mapper();
-		$unit   = $mapper->has($this->id) ? $mapper->getUnit($this->id) : Unit::get($this->id);
+		if ($mapper->has($this->id)) {
+			$unit     = $mapper->getUnit($this->id);
+			$this->id = $unit->Id();
+		} else {
+			$unit = Unit::get($this->id);
+		}
 		if ($unit->Party()->Type() !== Type::NPC) {
 			throw new ParseException($unit . ' is no NPC unit.');
 		}
@@ -94,6 +106,16 @@ class SetOrders extends AbstractScene
 		}
 		foreach ($this->acts as $act) {
 			$act->prepareNext();
+		}
+
+		if (!$this->due || $this->due === Due::FUTURE) {
+			$id = (string)$this->id;
+			if ($this->idArgument && $this->idArgument !== $id) {
+				$this->scenarioFactory->replaceArguments($this->section, $id);
+			}
+			if (isset($this->values['ID']) && (string)$this->values['ID'] !== $id) {
+				$this->values['ID'] = new Value($id);
+			}
 		}
 		return $this->section;
 	}

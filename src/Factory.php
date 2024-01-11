@@ -5,6 +5,7 @@ namespace Lemuria\Scenario\Fantasya;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownActException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
+use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\Act\Market;
 use Lemuria\Scenario\Fantasya\Script\Act\Roundtrip;
@@ -50,10 +51,9 @@ class Factory
 		if (!$class) {
 			throw new UnknownSceneException($name);
 		}
+		/** @var AbstractScene $scene */
 		$scene = new $class($this);
-		if ($arguments) {
-			$scene->setArguments($arguments);
-		}
+		$scene->setArguments($arguments);
 		return $scene->parse($section);
 	}
 
@@ -63,8 +63,24 @@ class Factory
 		if (!$class) {
 			throw new UnknownActException($name);
 		}
-		/** @var Act $act */
+		/** @var AbstractAct $act */
 		$act = new $class($scene);
 		return $act->parse($macro);
+	}
+
+	/**
+	 * @throws UnknownSceneException
+	 */
+	public function replaceArguments(Section $section, string $arguments): void {
+		$name  = $section->Name();
+		$space = strpos($name, ' ');
+		if ($space > 1) {
+			$name = substr($name, 0, $space);
+		}
+		if (isset(self::SCENE[$name])) {
+			$section->setName(self::SCENE[$name] . ' ' . $arguments);
+		} else {
+			throw new UnknownSceneException($name);
+		}
 	}
 }

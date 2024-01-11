@@ -25,6 +25,8 @@ abstract class AbstractScene implements Scene
 
 	protected Lines $lines;
 
+	protected readonly ?Due $due;
+
 	private static ?Context $context = null;
 
 	private static CommandFactory $factory;
@@ -47,10 +49,10 @@ abstract class AbstractScene implements Scene
 	public function isDue(): bool {
 		$round = $this->getOptionalValue(self::ROUND);
 		if ($round) {
-			if (Lemuria::Calendar()->Round() !== (int)$round) {
-				return false;
-			}
+			$this->due = Due::forRound((int)$round);
+			return $this->due === Due::NOW;
 		}
+		$this->due = null;
 		return true;
 	}
 
