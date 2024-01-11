@@ -4,9 +4,7 @@ namespace Lemuria\Scenario\Fantasya\Script\Scene;
 
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Engine\Fantasya\Message\Unit\TempMessage;
-use Lemuria\Exception\IdException;
 use Lemuria\Id;
-use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Ability;
 use Lemuria\Model\Fantasya\Construction;
@@ -18,21 +16,13 @@ use Lemuria\Model\Fantasya\Region;
 use Lemuria\Model\Fantasya\Resources;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Model\Fantasya\Vessel;
-use Lemuria\Scenario\Fantasya\Exception\DuplicateUnitException;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
-use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Storage\Ini\Section;
 
-class CreateUnit extends AbstractScene
+class CreateUnit extends AbstractCreate
 {
 	use BuilderTrait;
 	use MessageTrait;
-
-	private ?Id $id;
-
-	private ?string $name;
-
-	private ?string $description;
 
 	private Race $race;
 
@@ -81,7 +71,7 @@ class CreateUnit extends AbstractScene
 	public function play(): static {
 		parent::play();
 		$unit = new Unit();
-		$id   = $this->createId();
+		$id   = $this->createId(Domain::Unit);
 		$unit->setId($id);
 		$party = $this->context()->Party();
 		$party->People()->add($unit);
@@ -123,21 +113,6 @@ class CreateUnit extends AbstractScene
 	/**
 	 * @throws ParseException
 	 */
-	protected function parseId(?string $id): ?Id {
-		if ($id) {
-			$lcId = strtolower($id);
-			try {
-				return Id::fromId($lcId);
-			} catch (IdException $e) {
-				throw new ParseException('Invalid ID: ' . $id, previous: $e);
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * @throws ParseException
-	 */
 	protected function parseAbility(string $talentLevel): Ability {
 		if (preg_match('/^([^ ]+) +([1-9][0-9]*)$/', $talentLevel, $matches) === 1) {
 			$talent = $this->factory()->talent($matches[1]);
@@ -157,20 +132,5 @@ class CreateUnit extends AbstractScene
 			return new Quantity($commodity, $count);
 		}
 		throw new ParseException('Invalid quantity: ' . $item);
-	}
-
-	/**
-	 * @throws DuplicateUnitException
-	 */
-	protected function createId(): Id {
-		if ($this->id) {
-			if ($this->mapper()->has(Domain::Unit, $this->id)) {
-				throw new DuplicateUnitException($this->id);
-			}
-			if (!Lemuria::Catalog()->has($this->id, Domain::Unit)) {
-				return $this->id;
-			}
-		}
-		return Lemuria::Catalog()->nextId(Domain::Unit);
 	}
 }

@@ -77,6 +77,26 @@ Optionale Schlüssel:
     Gebäude = Holzfällerhütte    
     Größe = 5
 
+## Schiffe
+
+Schiffe können auf zwei verschiene Arten erzeugt werden:
+
+    [Schiff]
+
+Hier muss der Schiffstyp als Schlüssel angegeben werden.
+
+Der Schiffstyp kann auch direkt als Sektionsname verwendet werden:
+
+    [Langboot]
+
+Notwendige Schlüssel:
+
+    Region = n1
+
+Optionale Schlüssel:
+
+    Schiff = Karavell
+
 ## Skript
 
 Eine Sektion **[Skript]** legt einfache Befehle oder komplexe Handlungen für
