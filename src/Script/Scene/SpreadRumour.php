@@ -5,15 +5,12 @@ namespace Lemuria\Scenario\Fantasya\Script\Scene;
 use Lemuria\Engine\Fantasya\Command;
 use Lemuria\Engine\Fantasya\Phrase;
 use Lemuria\Engine\Fantasya\State;
-use Lemuria\Scenario\Fantasya\Act;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
-use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
-use Lemuria\Scenario\Fantasya\Script\Due;
 use Lemuria\Scenario\Fantasya\Script\IdTrait;
 use Lemuria\Storage\Ini\Section;
 
-class SetOrders extends AbstractScene
+class SpreadRumour extends AbstractScene
 {
 	use IdTrait;
 
@@ -22,15 +19,7 @@ class SetOrders extends AbstractScene
 	 */
 	protected array $orders = [];
 
-	/**
-	 * @var array<Act>
-	 */
-	protected array $acts = [];
-
-	/**
-	 * @var array<Act>
-	 */
-	protected array $chain = [];
+	protected ?int $rounds = null;
 
 	/**
 	 * @throws ParseException
@@ -39,12 +28,7 @@ class SetOrders extends AbstractScene
 		parent::parse($section);
 		$this->context()->setUnit($this->parseUnit());
 		foreach ($this->lines as $line) {
-			$macro = Macro::parse($line);
-			if ($macro) {
-				$this->acts[] = $this->scenarioFactory->createAct($this, $macro);
-			} else {
-				$this->orders[] = $this->factory()->create(new Phrase($line));
-			}
+			$this->orders[] = $this->factory()->create(new Phrase('GERÜCHT ' . $line));
 		}
 		return $this;
 	}
@@ -55,34 +39,21 @@ class SetOrders extends AbstractScene
 		foreach ($this->orders as $command) {
 			$state->injectIntoTurn($command);
 		}
-		foreach ($this->acts as $act) {
-			$act->play();
+		if ($this->rounds > 0) {
+			$this->rounds--;
 		}
 		return $this;
 	}
 
 	public function prepareNext(): ?Section {
-		$this->lines->clear();
-		foreach ($this->orders as $command) {
-			$this->lines->add((string)$command->Phrase());
-		}
-		foreach ($this->chain as $act) {
-			if ($act->getChainResult()) {
-				break;
-			}
-		}
-		foreach ($this->acts as $act) {
-			$act->prepareNext();
+		if (!$this->isDue()) {
+			return $this->section;
 		}
 
-		if (!$this->due || $this->due === Due::Future) {
+		if ($this->rounds === null || $this->rounds > 0) {
 			$this->replaceIdArgument();
+			return $this->section;
 		}
-		return $this->section;
-	}
-
-	public function chain(Act $act): static {
-		$this->chain[] = $act;
-		return $this;
+		return null;
 	}
 }

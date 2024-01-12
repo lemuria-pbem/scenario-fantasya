@@ -77,6 +77,20 @@ Optionale Schlüssel:
     Gebäude = Holzfällerhütte    
     Größe = 5
 
+## Gerücht
+
+Ein oder mehrere gesammelte Gerüchte werden in dieser Sektion angegeben.
+
+    [Gerücht]
+    Jedes Gerücht ist eine Zeile.
+
+Optionale Schlüssel:
+
+    Runden = 3
+
+Wenn eine Rundenanzahl angegeben ist, wird diese heruntergezählt und das Gerücht
+beim Ablauf des Countdowns gelöscht.
+
 ## Schiffe
 
 Schiffe können auf zwei verschiene Arten erzeugt werden:

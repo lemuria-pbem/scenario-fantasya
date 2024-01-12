@@ -11,6 +11,7 @@ use Lemuria\Scenario\Fantasya\Exception\UnknownActException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
+use Lemuria\Scenario\Fantasya\Script\Act\Hearsay;
 use Lemuria\Scenario\Fantasya\Script\Act\Market;
 use Lemuria\Scenario\Fantasya\Script\Act\Roundtrip;
 use Lemuria\Scenario\Fantasya\Script\Act\Trip;
@@ -18,6 +19,7 @@ use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateConstruction;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateUnit;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateVessel;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
+use Lemuria\Scenario\Fantasya\Script\Scene\SpreadRumour;
 use Lemuria\Storage\Ini\Section;
 
 class Factory
@@ -29,6 +31,7 @@ class Factory
 		'Burg'    => CreateConstruction::class,
 		'Einheit' => CreateUnit::class,
 		'Gebäude' => CreateConstruction::class,
+		'Gerücht' => SpreadRumour::class,
 		'Schiff'  => CreateVessel::class,
 		'Skript'  => SetOrders::class
 	];
@@ -37,6 +40,7 @@ class Factory
 	 * @type array<string, string>
 	 */
 	protected const array ACT = [
+		'Gerüchte'   => Hearsay::class,
 		'Marktstand' => Market::class,
 		'Reise'      => Trip::class,
 		'Rundreise'  => Roundtrip::class
@@ -102,7 +106,7 @@ class Factory
 			$name = substr($name, 0, $space);
 		}
 		if (isset(self::SCENE[$name])) {
-			$section->setName(self::SCENE[$name] . ' ' . $arguments);
+			$section->setName($name . ' ' . $arguments);
 		} else {
 			throw new UnknownSceneException($name);
 		}

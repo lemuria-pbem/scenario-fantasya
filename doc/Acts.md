@@ -7,6 +7,11 @@ Befehle erzeugen können.
 Eine Handlung kann ein Ergebnis erzeugen, das bestimmt, ob weitere nachfolgende
 Handlungen ausgeführt werden.
 
+## Gerüchte([Begegnung|Kampf|Markt|Monster|Steuer], …)
+
+Sammelt alle Vorkommnisse der angegebenen Art in den durchreisten Regionen. Ohne
+Angabe der Art werden alle Arten von Gerüchten gesammelt.
+
 ## Marktstand(_n_)
 
 1. Wenn in der Region ein Markt existiert, betritt die Einheit den Markt.
@@ -19,6 +24,10 @@ Handlungen ausgeführt werden.
 
 Der Schlüssel _LetzterHandel_ speichert, wie viele Runden seit dem letzten
 Handel vergangen sind.
+
+## Reise(_ID_)
+
+Reist auf dem kürzesten Weg zu einer Region.
 
 ## Rundreise(_a_, _b_, …)
 
