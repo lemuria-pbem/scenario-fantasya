@@ -62,8 +62,6 @@ class ScenarioOrders extends LemuriaOrders
 		foreach ($this->scenario as $id => $instructions /** @var Instructions $instructions */) {
 			$scenario[] = [self::ID => $id, self::ACTS => $instructions->serialize()];
 		}
-		$this->data = $scenario;
-
 		$data[self::SCENARIO] = $scenario;
 		return parent::saveData($data);
 	}
