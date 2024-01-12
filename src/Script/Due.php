@@ -7,11 +7,11 @@ use Lemuria\Lemuria;
 
 enum Due : int
 {
-	case PAST = -1;
+	case Past = -1;
 
-	case NOW = 0;
+	case Now = 0;
 
-	case FUTURE = 1;
+	case Future = 1;
 
 	public static function forRound(int $round): self {
 		return self::from(direction($round - Lemuria::Calendar()->Round()));

@@ -109,7 +109,7 @@ class SetOrders extends AbstractScene
 			$act->prepareNext();
 		}
 
-		if (!$this->due || $this->due === Due::FUTURE) {
+		if (!$this->due || $this->due === Due::Future) {
 			$id = (string)$this->id;
 			if ($this->idArgument && $this->idArgument !== $id) {
 				$this->scenarioFactory->replaceArguments($this->section, $id);

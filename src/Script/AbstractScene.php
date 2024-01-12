@@ -50,7 +50,7 @@ abstract class AbstractScene implements Scene
 		$round = $this->getOptionalValue(self::ROUND);
 		if ($round) {
 			$this->due = Due::forRound((int)$round);
-			return $this->due === Due::NOW;
+			return $this->due === Due::Now;
 		}
 		$this->due = null;
 		return true;
