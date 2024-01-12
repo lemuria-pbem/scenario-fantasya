@@ -2,17 +2,30 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
+use Lemuria\Engine\Fantasya\Context;
+use Lemuria\Engine\Fantasya\State;
+use Lemuria\Engine\Fantasya\Turn\Options;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Scenario\Scripts;
 
 class LemuriaScripts implements Scripts
 {
+	private readonly Context $context;
+
 	/**
 	 * @var array<Script>
 	 */
 	private array $scripts = [];
 
+	public function __construct(private readonly Options $options) {
+		$this->context = new Context(State::getInstance());
+	}
+
 	public function load(): static {
+		$this->context->setParty($this->options->Finder()->Party()->findByType(Type::NPC));
+		Script::setContext($this->context);
+
 		Lemuria::Log()->debug('Loading NPC scripts.');
 		foreach (Lemuria::Game()->getScripts() as $file => $data) {
 			$script          = new Script($file, $data);

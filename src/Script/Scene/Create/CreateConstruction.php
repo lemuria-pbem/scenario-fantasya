@@ -50,7 +50,7 @@ class CreateConstruction extends AbstractCreate
 		$construction->setId($id)->setBuilding($this->building);
 		$this->region->Estate()->add($construction);
 
-		$construction->setName($this->name ?? $this->building . ' ' . $id);
+		$construction->setName($this->name ?? $this->class . ' ' . $id);
 		if ($this->description) {
 			$construction->setDescription($this->description);
 		}
@@ -65,19 +65,25 @@ class CreateConstruction extends AbstractCreate
 	}
 
 	private function createBuilding(): void {
-		$this->building = $this->factory()->building($this->class);
-		if ($this->building::class === AnyBuilding::class) {
+		$building = $this->factory()->resource($this->class);
+		if ($building::class === AnyBuilding::class) {
 			throw new ParseException('Invalid building given: ' . $this->class);
 		}
-		if ($this->building::class === AnyCastle::class) {
+
+		if ($building::class === AnyCastle::class) {
 			$this->building = AbstractCastle::forSize($this->size);
-		} elseif ($this->building instanceof Castle) {
-			while ($this->size < $this->building->MinSize()) {
-				$this->building = $this->building->Downgrade();
+		} elseif ($building instanceof Castle) {
+			while ($this->size < $building->MinSize()) {
+				$building = $building->Downgrade();
 			}
-			while ($this->size > $this->building->MaxSize()) {
-				$this->building = $this->building->Upgrade();
+			while ($this->size > $building->MaxSize()) {
+				$building = $building->Upgrade();
 			}
+			$this->building = $building;
+		} elseif ($building instanceof Building) {
+			$this->building = $building;
+		} else {
+			throw new ParseException('Invalid building given: ' . $this->class);
 		}
 	}
 }
