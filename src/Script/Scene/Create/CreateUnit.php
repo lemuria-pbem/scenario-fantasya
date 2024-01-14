@@ -5,6 +5,7 @@ namespace Lemuria\Scenario\Fantasya\Script\Scene\Create;
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Engine\Fantasya\Message\Unit\TempMessage;
 use Lemuria\Id;
+use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Ability;
 use Lemuria\Model\Fantasya\Construction;
@@ -99,6 +100,7 @@ class CreateUnit extends AbstractCreate
 		}
 		$this->context()->setUnit($unit);
 		$this->message(TempMessage::class, $unit);
+		Lemuria::Log()->debug('New unit ' . $unit . ' created.');
 
 		return $this;
 	}

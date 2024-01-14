@@ -29,7 +29,7 @@ class Hearsay extends AbstractAct
 				if ($myth) {
 					$this->interest[] = $myth;
 				} else {
-					Lemuria::Log()->debug('Invalid hearsay myth given: ' . $topic);
+					Lemuria::Log()->critical('Invalid hearsay myth given: ' . $topic);
 				}
 			}
 		} else {
@@ -41,6 +41,7 @@ class Hearsay extends AbstractAct
 	}
 
 	public function play(): static {
+		parent::play();
 		CollectRumour::register($this);
 
 		$myths = [];

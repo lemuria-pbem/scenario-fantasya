@@ -44,6 +44,7 @@ class Market extends AbstractAct
 	}
 
 	public function play(): static {
+		parent::play();
 		if ($this->isInMarket()) {
 			if (!$this->getChainResult()) {
 				$leave = new Leave(new Phrase('VERLASSEN'), $this->scene->context());

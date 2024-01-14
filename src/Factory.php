@@ -6,6 +6,7 @@ use Lemuria\Engine\Fantasya\Context;
 use Lemuria\Engine\Fantasya\Exception\UnknownItemException;
 use Lemuria\Engine\Fantasya\Factory\CommandFactory;
 use Lemuria\Exception\SingletonException;
+use Lemuria\Lemuria;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownActException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
@@ -107,6 +108,7 @@ class Factory
 		}
 		if (isset(self::SCENE[$name])) {
 			$section->setName($name . ' ' . $arguments);
+			Lemuria::Log()->debug('Arguments in section ' . $name . ' replaced with ' . $arguments . '.');
 		} else {
 			throw new UnknownSceneException($name);
 		}

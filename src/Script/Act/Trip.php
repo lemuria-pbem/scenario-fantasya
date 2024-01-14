@@ -19,6 +19,7 @@ class Trip extends AbstractAct
 	}
 
 	public function play(): static {
+		parent::play();
 		if (!$this->startTrip()) {
 			return $this;
 		}

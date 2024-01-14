@@ -20,6 +20,11 @@ abstract class AbstractAct implements Act
 		return $this;
 	}
 
+	public function play(): static {
+		Lemuria::Log()->debug('Playing act ' . $this->macro . '.');
+		return $this;
+	}
+
 	public function prepareNext(): static {
 		$macro = (string)$this->macro;
 		$this->scene->Section()->Lines()->add($macro);
