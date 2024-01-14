@@ -10,15 +10,12 @@ use Lemuria\Engine\Fantasya\State;
 use Lemuria\Id;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Region;
-use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Model\World\PathStrategy;
 use Lemuria\Model\World\Way;
 
 trait TripTrait
 {
-	private ?Unit $unit = null;
-
-	private Region $start;
+	private ?Region $start = null;
 
 	private Region $destination;
 
@@ -37,7 +34,7 @@ trait TripTrait
 		if ($n > 0) {
 			$directions = implode(' ', $list->route());
 			$travel     = new Travel(new Phrase('REISEN ' . $directions), $context);
-			State::getInstance()->injectIntoTurn($travel);
+			State::getInstance()->injectIntoTurn($travel->preventDefault());
 		}
 		return $n;
 	}
@@ -47,8 +44,7 @@ trait TripTrait
 	}
 
 	protected function setStartFromUnit(): void {
-		if (!$this->unit) {
-			$this->unit  = $this->scene->context()->Unit();
+		if (!$this->start) {
 			$this->start = $this->unit->Region();
 		}
 	}

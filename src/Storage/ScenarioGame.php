@@ -3,12 +3,23 @@ declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Storage;
 
 use Lemuria\Engine\Fantasya\Storage\LemuriaGame;
+use Lemuria\Model\Fantasya\Storage\JsonProvider;
 use Lemuria\Storage\Ini\SectionList;
 use Lemuria\Storage\IniProvider;
 
 class ScenarioGame extends LemuriaGame
 {
 	private const string SCRIPTS_DIR = 'scripts';
+
+	private const string STRINGS_DIR = __DIR__ . '/../../resources';
+
+	private const string STRINGS_FILE = 'scenario.json';
+
+	public function getStrings(): array {
+		$strings  = parent::getStrings();
+		$scenario = $this->getData(self::STRINGS_FILE);
+		return array_merge($strings, $scenario);
+	}
 
 	/**
 	 * Get NPC scripts data.
@@ -39,5 +50,14 @@ class ScenarioGame extends LemuriaGame
 			$provider->write($file, $data);
 		}
 		return $this;
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	protected function addStringsStorage(array $storage): array {
+		$storage = parent::addStringsStorage($storage);
+		$storage[self::STRINGS_FILE] = new JsonProvider(self::STRINGS_DIR);
+		return $storage;
 	}
 }

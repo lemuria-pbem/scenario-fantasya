@@ -33,6 +33,8 @@ abstract class AbstractScene implements Scene
 
 	private static IdMapper $mapper;
 
+	private bool $dueInitialized = false;
+
 	public function __construct(protected readonly Factory $scenarioFactory) {
 		if (!self::$context) {
 			self::$context = new Context(State::getInstance());
@@ -47,13 +49,12 @@ abstract class AbstractScene implements Scene
 	}
 
 	public function isDue(): bool {
-		$round = $this->getOptionalValue(self::ROUND);
-		if ($round) {
-			$this->due = Due::forRound((int)$round);
-			return $this->due === Due::Now;
+		if (!$this->dueInitialized) {
+			$round                = $this->getOptionalValue(self::ROUND);
+			$this->due            = $round ? Due::forRound((int)$round) : null;
+			$this->dueInitialized = true;
 		}
-		$this->due = null;
-		return true;
+		return !$this->due || $this->due === Due::Now;
 	}
 
 	public function parse(Section $section): static {

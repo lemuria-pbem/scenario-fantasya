@@ -32,7 +32,7 @@ class Market extends AbstractAct
 	}
 
 	public function Unit(): Unit {
-		return $this->scene->context()->Unit();
+		return $this->unit;
 	}
 
 	public function parse(Macro $macro): static {
@@ -98,6 +98,6 @@ class Market extends AbstractAct
 	}
 
 	protected function isInMarket(): bool {
-		return $this->scene->context()->Unit()->Construction()?->Building() instanceof MarketBuilding;
+		return $this->unit->Construction()?->Building() instanceof MarketBuilding;
 	}
 }

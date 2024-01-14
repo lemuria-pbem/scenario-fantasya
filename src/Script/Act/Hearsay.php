@@ -27,7 +27,7 @@ class Hearsay extends AbstractAct
 				$topic = $macro->getParameter($i);
 				$myth  = Myth::tryFrom($topic);
 				if ($myth) {
-					$this->interest[] = $myth;
+					$this->interest[] = new Rumour($myth);
 				} else {
 					Lemuria::Log()->critical('Invalid hearsay myth given: ' . $topic);
 				}

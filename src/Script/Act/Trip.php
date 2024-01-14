@@ -30,7 +30,11 @@ class Trip extends AbstractAct
 	}
 
 	public function getChainResult(): bool {
-		return $this->scene->context()->Unit()->Region() !== $this->destination;
+		return $this->unit->Region() !== $this->destination;
+	}
+
+	protected function includeInNext(): bool {
+		return !$this->hasReachedDestination();
 	}
 
 	protected function startTrip(): bool {
