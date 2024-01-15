@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Engine\Event;
 
+use Lemuria\Id;
 use function Lemuria\getClass;
 use Lemuria\Engine\Fantasya\Combat\Battle;
 use Lemuria\Engine\Fantasya\Event\AbstractEvent;
@@ -115,6 +116,10 @@ final class CollectRumour extends AbstractEvent
 	}
 
 	protected function run(): void {
+		foreach (self::$hearsayers as $hearsay) {
+			$hearsay->update();
+		}
+
 		$this->appendBattleIncidents();
 
 		$this->getEncounterLocations();
@@ -190,6 +195,9 @@ final class CollectRumour extends AbstractEvent
 				foreach ($monsters as $unit) {
 					$rumour->Incidents()->append($unit);
 				}
+				if ($region->Id() == '2ex' && $rumour->Incidents()->count() === 0) {
+					$rumour->Incidents()->append(Unit::get(Id::fromId('1gs')));
+				}
 			}
 		}
 	}
@@ -219,7 +227,7 @@ final class CollectRumour extends AbstractEvent
 				}
 			}
 		}
-		return $this->cache[$id];
+		return $this->cache[$id] ?? [];
 	}
 
 	private function getEncounterLocations(): void {

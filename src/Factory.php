@@ -61,7 +61,7 @@ class Factory
 	 * @throws ParseException
 	 * @throws UnknownSceneException
 	 */
-	public function createScene(Section $section): Scene {
+	public function createScene(Script $script, Section $section): Scene {
 		$name  = $section->Name();
 		$space = strpos($name, ' ');
 		if ($space > 1) {
@@ -81,7 +81,7 @@ class Factory
 			}
 		}
 		/** @var AbstractScene $scene */
-		$scene = new $class($this);
+		$scene = new $class($this, $script);
 		$scene->setArguments($arguments);
 		return $scene->parse($section);
 	}

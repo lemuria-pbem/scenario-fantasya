@@ -7,6 +7,7 @@ use Lemuria\Lemuria;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\ScriptException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
+use Lemuria\Storage\Ini\Section;
 use Lemuria\Storage\Ini\SectionList;
 
 class Script
@@ -19,6 +20,11 @@ class Script
 	 * @var array<Scene>
 	 */
 	protected array $scenes = [];
+
+	/**
+	 * @var array<Section>
+	 */
+	private array $additions = [];
 
 	public static function setContext(Context $context): void {
 		self::$context = $context;
@@ -36,11 +42,16 @@ class Script
 		return $this->data;
 	}
 
+	public function add(Section $section): static {
+		$this->additions[] = $section;
+		return $this;
+	}
+
 	public function play(): static {
 		Lemuria::Log()->debug('Playing NPC script ' . basename($this->file) . '.');
 		foreach ($this->data->getSections() as $section) {
 			try {
-				$scene = self::$factory->createScene($section);
+				$scene = self::$factory->createScene($this, $section);
 				if ($scene->isDue()) {
 					$scene->play();
 					$this->scenes[] = $scene;
@@ -63,6 +74,9 @@ class Script
 			if ($section) {
 				$this->data->add($section);
 			}
+		}
+		foreach ($this->additions as $section) {
+			$this->data->add($section);
 		}
 		return $this;
 	}

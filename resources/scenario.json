@@ -1,5 +1,24 @@
 {
 	"hearsay": {
-		"x": "y"
+		"monster": [
+			[
+				"In $region ist mir kürzlich {g/nom:ein:$monster} begegnet.",
+				"In der Gegend um $region ist mir $date {g/nom:ein:$monster} begegnet.",
+				"In $region ist mir {g/nom:ein:$monster} begegnet; das war $date.",
+				"In $region treibt sich {g/nom:ein:$monster} herum.",
+				"In $region wäre ich $date fast {g/dat:ein:$monster} zum Opfer gefallen.",
+				"Seht Euch vor, wenn Ihr nach $region kommt! Dort treibt sich {g/nom:ein:$monster} herum.",
+				"Wenn Ihr nach $region kommt, nehmt Euch vor {g/dat:das:$monster} in Acht!"
+			],
+			[
+				"In $region sind mir vor kurzem {g/nom:einige:$monster} begegnet.",
+				"In der Gegend um $region sind mir $date {g/nom:einige:$monster} begegnet.",
+				"In $region sind mir {g/nom:einige:$monster} begegnet; das war $date.",
+				"In $region treiben sich {g/nom:einige:$monster} herum.",
+				"In $region wäre ich $date fast {g/dat:einige:$monster} zum Opfer gefallen.",
+				"Seht Euch vor, wenn Ihr nach $region kommt! Dort treiben sich {g/nom:einige:$monster} herum.",
+				"Wenn Ihr nach $region kommt, nehmt Euch vor {g/dat:die:$monster} in Acht!"
+			]
+		]
 	}
 }

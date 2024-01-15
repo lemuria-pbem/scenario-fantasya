@@ -11,6 +11,7 @@ use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Factory;
 use Lemuria\Scenario\Fantasya\Model\IdMapper;
 use Lemuria\Scenario\Fantasya\Scene;
+use Lemuria\Scenario\Fantasya\Script;
 use Lemuria\Storage\Ini\Lines;
 use Lemuria\Storage\Ini\Section;
 use Lemuria\Storage\Ini\Values;
@@ -35,13 +36,17 @@ abstract class AbstractScene implements Scene
 
 	private bool $dueInitialized = false;
 
-	public function __construct(protected readonly Factory $scenarioFactory) {
+	public function __construct(protected readonly Factory $scenarioFactory, protected readonly Script $script) {
 		if (!self::$context) {
 			self::$context = new Context(State::getInstance());
 			self::$context->setParty(State::getInstance()->getTurnOptions()->Finder()->Party()->findByType(Type::NPC));
 			self::$factory = self::$context->Factory();
 			self::$mapper  = new IdMapper();
 		}
+	}
+
+	public function Script(): Script {
+		return $this->script;
 	}
 
 	public function Section(): Section {
