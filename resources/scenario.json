@@ -1,9 +1,41 @@
 {
 	"hearsay": {
+		"battle": {
+
+		},
+		"duty": {
+			"free": {
+				"Port": "Im Hafen $name in $region wird keine Zollgebühr erhoben."
+			},
+			"rate": {
+				"Port": "Im Hafen $name in $region erhebt der Hafenmeister $duty % Zoll."
+			}
+		},
 		"encounter": [
 			"$name ist mir $date in $region begegnet.",
 			"Kennt Ihr $name? In $region bin ich $pronoun $date begegnet."
 		],
+		"fee": {
+			"fixed": {
+				"Canal": "Um den Kanal $name in $region zu befahren, muss man $fee zahlen.",
+				"Market": "Die Standgebühr auf dem Markt $name in $region ist $fee.",
+				"Port": "Der Hafenmeister des Hafens $name in $region erhebt eine Liegegebühr von $fee."
+			},
+			"free": {
+				"Canal": "Der Kanal $name in $region kann kostenfrei befahren werden.",
+				"Market": "Auf dem Markt $name in $region gibt es keine Standgebühr.",
+				"Port": "Der Hafen $name in $region erhebt keine Liegegebühr."
+			},
+			"rate": {
+				"Market": "Die Aufsicht des Markts $name in $region verlangt eine Gebühr von $duty %."
+			}
+		},
+		"market": {
+			"both": "Auf dem Markt $name in $region kann man $offer kaufen. Eine Nachfrage besteht für $demand.",
+			"demand": "Auf dem Markt $name in $region kann man $demand verkaufen.",
+			"nothing": "Auf dem Markt $name in $region werden keine Waren angeboten oder nachgefragt.",
+			"offer": "Auf dem Markt $name in $region kann man $offer kaufen."
+		},
 		"monster": [
 			[
 				"In $region ist mir kürzlich {g/nom:ein:$monster} begegnet.",

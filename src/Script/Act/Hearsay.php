@@ -10,12 +10,15 @@ use Lemuria\Model\Fantasya\Construction;
 use Lemuria\Model\Fantasya\Extension\Duty;
 use Lemuria\Model\Fantasya\Extension\Fee;
 use Lemuria\Model\Fantasya\Extension\Market as MarketExtension;
+use Lemuria\Model\Fantasya\Extension\Trades;
 use Lemuria\Model\Fantasya\ExtensionTrait;
+use Lemuria\Model\Fantasya\Kind;
 use Lemuria\Model\Fantasya\Market\Sales;
 use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Engine\Event\CollectRumour;
 use Lemuria\Scenario\Fantasya\Macro;
+use Lemuria\Scenario\Fantasya\Model\GoodKinds;
 use Lemuria\Scenario\Fantasya\Model\Myth;
 use Lemuria\Scenario\Fantasya\Model\Rumour;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
@@ -131,7 +134,7 @@ class Hearsay extends AbstractAct
 	 * @param \ArrayObject<Battle> $monsters
 	 */
 	private function addBattleRumours(\ArrayObject $battles): void {
-
+		//TODO
 	}
 
 	/**
@@ -160,7 +163,6 @@ class Hearsay extends AbstractAct
 					/** @var MarketExtension $market */
 					$market = $extensions->offsetGet(MarketExtension::class);
 					$this->addFeeRumour($construction, $market->Fee());
-					$this->addMarketRumour($construction);
 					break;
 				case Port::class :
 					/** @var Duty $duty */
@@ -178,7 +180,18 @@ class Hearsay extends AbstractAct
 	 * @param \ArrayObject<Construction> $markets
 	 */
 	private function addMarketRumours(\ArrayObject $markets): void {
-
+		foreach ($markets as $market) {
+			$offer  = [];
+			$demand = [];
+			$kinds  = $this->getMarketGoods($market);
+			foreach ($kinds->Offer() as $kind) {
+				$offer[] = $this->dictionary->get('kind' , $kind->name);
+			}
+			foreach ($kinds->Demand() as $kind) {
+				$demand[] = $this->dictionary->get('kind' , $kind->name);
+			}
+			$this->addMarketRumour($market, $offer, $demand);
+		}
 	}
 
 	/**
@@ -193,17 +206,6 @@ class Hearsay extends AbstractAct
 			$rumour              = $this->translateReplace($rumour, '$region', $unit->Region()->Name());
 			$this->rumours[$r][] = $rumour;
 		}
-	}
-
-	private function addMarketRumour(Construction $construction): void {
-		$goods = [];
-		foreach ($construction->Inhabitants() as $unit) {
-			if ($unit !== $this->unit) {
-
-			}
-		}
-		$sales = new Sales($construction);
-
 	}
 
 	private function addFeeRumour(Construction $construction, Quantity|float|null $fee): void {
@@ -235,5 +237,66 @@ class Hearsay extends AbstractAct
 		$rumour              = $this->translateReplace($rumour, '$name', $construction->Name());
 		$rumour              = $this->translateReplace($rumour, '$region', $construction->Region()->Name());
 		$this->rumours[$r][] = $rumour;
+	}
+
+	/**
+	 * @return array<Kind>
+	 */
+	private function getMarketGoods(Construction $construction): GoodKinds {
+		$kinds = new GoodKinds();
+		$sales = new Sales($construction);
+		foreach ($construction->Inhabitants() as $unit) {
+			if ($unit !== $this->unit) {
+				if ($unit->Extensions()->offsetExists(Trades::class)) {
+					/** @var Trades $trades */
+					$trades = $unit->Extensions()->offsetGet(Trades::class);
+					foreach ($trades as $trade) {
+						if ($sales->getStatus($trade) === Sales::AVAILABLE) {
+							$kinds->addFrom($trade);
+						}
+					}
+				}
+			}
+		}
+		return $kinds;
+	}
+
+	/**
+	 * @param array<string> $offer
+	 * @param array<string> $demand
+	 */
+	private function addMarketRumour(Construction $market, array $offer, array $demand): void {
+		$r = self::ROUNDS[Myth::Market->name];
+		if (empty($offer)) {
+			if (empty($demand)) {
+				$rumour = $this->dictionary->get('hearsay.market.nothing');
+			} else {
+				$rumour = $this->dictionary->get('hearsay.market.demand');
+				$rumour = $this->translateReplace($rumour, '$demand', $this->combineKinds($demand));
+			}
+		} else {
+			if (empty($demand)) {
+				$rumour = $this->dictionary->get('hearsay.market.offer');
+				$rumour = $this->translateReplace($rumour, '$offer', $this->combineKinds($offer));
+			} else {
+				$rumour = $this->dictionary->get('hearsay.market.both');
+				$rumour = $this->translateReplace($rumour, '$offer', $this->combineKinds($offer));
+				$rumour = $this->translateReplace($rumour, '$demand', $this->combineKinds($demand));
+			}
+		}
+		$rumour = $this->translateReplace($rumour, '$name', $market->Name());
+		$rumour = $this->translateReplace($rumour, '$region', $market->Region()->Name());
+		$this->rumours[$r][] = $rumour;
+	}
+
+	/**
+	 * @param array<string> $kinds
+	 */
+	private function combineKinds(array $kinds): string {
+		$last = array_pop($kinds);
+		if (empty($kinds)) {
+			return $last;
+		}
+		return implode(', ', $kinds) . ' und ' . $last;
 	}
 }

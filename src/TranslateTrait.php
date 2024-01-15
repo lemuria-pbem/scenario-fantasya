@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
+use Lemuria\Model\Fantasya\Unit;
 use function Lemuria\getClass;
 use Lemuria\Engine\Fantasya\Factory\GrammarTrait;
 use Lemuria\Engine\Fantasya\Message\Casus;
@@ -96,7 +97,8 @@ trait TranslateTrait
 		return '{' . $parts[0] . '}' . ' ' . $parts[1];
 	}
 
-	private function pronoun(Item $item): string {
-		return $item->Count() === 1 ? 'ihm' : 'ihnen';
+	private function pronoun(Unit $unit): string {
+		//TODO Make this better!
+		return $unit->Size() === 1 ? 'ihm' : 'ihnen';
 	}
 }
