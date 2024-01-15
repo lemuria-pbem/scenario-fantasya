@@ -2,7 +2,17 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
+use Lemuria\Engine\Fantasya\Combat\Battle;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Building\Market;
+use Lemuria\Model\Fantasya\Building\Port;
+use Lemuria\Model\Fantasya\Construction;
+use Lemuria\Model\Fantasya\Extension\Duty;
+use Lemuria\Model\Fantasya\Extension\Fee;
+use Lemuria\Model\Fantasya\Extension\Market as MarketExtension;
+use Lemuria\Model\Fantasya\ExtensionTrait;
+use Lemuria\Model\Fantasya\Market\Sales;
+use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Engine\Event\CollectRumour;
 use Lemuria\Scenario\Fantasya\Macro;
@@ -17,9 +27,14 @@ use Lemuria\Storage\Ini\Section;
  */
 class Hearsay extends AbstractAct
 {
+	use ExtensionTrait;
 	use TranslateTrait;
 
-	protected const ROUNDS_MONSTER = 3;
+	protected const array ROUNDS = [
+		Myth::Battle->name    => 3, Myth::Monster->name => 3,
+		Myth::Encounter->name => 6,
+		Myth::Fee->name       => 9, Myth::Market->name  => 9,
+	];
 
 	/**
 	 * @var array<Rumour>
@@ -30,6 +45,8 @@ class Hearsay extends AbstractAct
 	 * @var array<int, array<string>>
 	 */
 	private array $rumours = [];
+
+	private string $date;
 
 	public function parse(Macro $macro): static {
 		parent::parse($macro);
@@ -83,14 +100,17 @@ class Hearsay extends AbstractAct
 	}
 
 	public function collect(): void {
-		//TODO
 		$this->initDictionary();
+		$calendar   = Lemuria::Calendar();
+		$this->date = 'in der ' . $calendar->Week() . '. Woche ' . $this->translateKey('calendar.month', $calendar->Month());
 		foreach ($this->interest as $rumour) {
-			switch ($rumour->Myth()) {
-				case Myth::Monster :
-					$this->addMonsterRumours($rumour->Incidents());
-					break;
-			}
+			match ($rumour->Myth()) {
+				Myth::Battle    => $this->addBattleRumours($rumour->Incidents()),
+				Myth::Encounter => $this->addEncounterRumours($rumour->Incidents()),
+				Myth::Fee       => $this->addFeeRumours($rumour->Incidents()),
+				Myth::Market    => $this->addMarketRumours($rumour->Incidents()),
+				Myth::Monster   => $this->addMonsterRumours($rumour->Incidents())
+			};
 		}
 		$this->createRumourSections();
 	}
@@ -107,15 +127,113 @@ class Hearsay extends AbstractAct
 		}
 	}
 
-	private function addMonsterRumours(\ArrayObject $monsters): void {
-		$date = 'Runde ' . Lemuria::Calendar()->Round();
-		foreach ($monsters as $unit) {
-			/** @var Unit $unit */
-			$rumour                                = $this->dictionary->random('hearsay.monster', $unit->Size() > 1 ? 1 : 0);
-			$rumour                                = $this->translateReplace($rumour, '$date', $date);
-			$rumour                                = $this->translateReplace($rumour, '$monster', $unit->Race());
-			$rumour                                = $this->translateReplace($rumour, '$region', $unit->Region()->Name());
-			$this->rumours[self::ROUNDS_MONSTER][] = $rumour;
+	/**
+	 * @param \ArrayObject<Battle> $monsters
+	 */
+	private function addBattleRumours(\ArrayObject $battles): void {
+
+	}
+
+	/**
+	 * @param \ArrayObject<Unit> $units
+	 */
+	private function addEncounterRumours(\ArrayObject $units): void {
+		$r = self::ROUNDS[Myth::Encounter->name];
+		foreach ($units as $unit) {
+			$rumour              = $this->dictionary->random('hearsay.encounter');
+			$rumour              = $this->translateReplace($rumour, '$date', $this->date);
+			$rumour              = $this->translateReplace($rumour, '$name', $unit->Name());
+			$rumour              = $this->translateReplace($rumour, '$pronoun', $this->pronoun($unit));
+			$rumour              = $this->translateReplace($rumour, '$region', $unit->Region()->Name());
+			$this->rumours[$r][] = $rumour;
 		}
+	}
+
+	/**
+	 * @param \ArrayObject<Construction> $constructions
+	 */
+	private function addFeeRumours(\ArrayObject $constructions): void {
+		foreach ($constructions as $construction) {
+			$extensions = $construction->Extensions();
+			switch ($construction->Building()::class) {
+				case Market::class :
+					/** @var MarketExtension $market */
+					$market = $extensions->offsetGet(MarketExtension::class);
+					$this->addFeeRumour($construction, $market->Fee());
+					$this->addMarketRumour($construction);
+					break;
+				case Port::class :
+					/** @var Duty $duty */
+					$duty = $extensions->offsetGet(Duty::class);
+					$this->addDutyRumour($construction, $duty->Duty());
+				default :
+					/** @var Fee $fee */
+					$fee = $extensions->offsetGet(Fee::class);
+					$this->addFeeRumour($construction, $fee->Fee());
+			}
+		}
+	}
+
+	/**
+	 * @param \ArrayObject<Construction> $markets
+	 */
+	private function addMarketRumours(\ArrayObject $markets): void {
+
+	}
+
+	/**
+	 * @param \ArrayObject<Unit> $monsters
+	 */
+	private function addMonsterRumours(\ArrayObject $monsters): void {
+		$r = self::ROUNDS[Myth::Monster->name];
+		foreach ($monsters as $unit) {
+			$rumour              = $this->dictionary->random('hearsay.monster', $unit->Size() > 1 ? 1 : 0);
+			$rumour              = $this->translateReplace($rumour, '$date', $this->date);
+			$rumour              = $this->translateReplace($rumour, '$monster', $unit->Race());
+			$rumour              = $this->translateReplace($rumour, '$region', $unit->Region()->Name());
+			$this->rumours[$r][] = $rumour;
+		}
+	}
+
+	private function addMarketRumour(Construction $construction): void {
+		$goods = [];
+		foreach ($construction->Inhabitants() as $unit) {
+			if ($unit !== $this->unit) {
+
+			}
+		}
+		$sales = new Sales($construction);
+
+	}
+
+	private function addFeeRumour(Construction $construction, Quantity|float|null $fee): void {
+		$building = $construction->Building();
+		$r        = self::ROUNDS[Myth::Fee->name];
+		if ($fee instanceof Quantity) {
+			$rumour = $this->dictionary->get('hearsay.fee.fixed', $building);
+			$rumour = $this->translateReplace($rumour, '$fee', $this->translateItem($fee));
+		} elseif (is_float($fee)) {
+			$rumour = $this->dictionary->get('hearsay.fee.rate', $building);
+			$rumour = $this->translateReplace($rumour, '$fee', (string)(int)round(100 * $fee));
+		} else {
+			$rumour = $this->dictionary->get('hearsay.fee.free', $building);
+		}
+		$rumour              = $this->translateReplace($rumour, '$name', $construction->Name());
+		$rumour              = $this->translateReplace($rumour, '$region', $construction->Region()->Name());
+		$this->rumours[$r][] = $rumour;
+	}
+
+	private function addDutyRumour(Construction $construction, float $duty): void {
+		$building = $construction->Building();
+		$r        = self::ROUNDS[Myth::Fee->name];
+		if ($duty > 0.0) {
+			$rumour = $this->dictionary->get('hearsay.duty.rate', $building);
+			$rumour = $this->translateReplace($rumour, '$duty', (string)(int)round(100 * $duty));
+		} else {
+			$rumour = $this->dictionary->get('hearsay.duty.free', $building);
+		}
+		$rumour              = $this->translateReplace($rumour, '$name', $construction->Name());
+		$rumour              = $this->translateReplace($rumour, '$region', $construction->Region()->Name());
+		$this->rumours[$r][] = $rumour;
 	}
 }

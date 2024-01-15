@@ -95,4 +95,8 @@ trait TranslateTrait
 		}
 		return '{' . $parts[0] . '}' . ' ' . $parts[1];
 	}
+
+	private function pronoun(Item $item): string {
+		return $item->Count() === 1 ? 'ihm' : 'ihnen';
+	}
 }

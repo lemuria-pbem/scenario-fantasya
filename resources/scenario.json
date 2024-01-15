@@ -1,5 +1,9 @@
 {
 	"hearsay": {
+		"encounter": [
+			"$name ist mir $date in $region begegnet.",
+			"Kennt Ihr $name? In $region bin ich $pronoun $date begegnet."
+		],
 		"monster": [
 			[
 				"In $region ist mir kürzlich {g/nom:ein:$monster} begegnet.",
