@@ -2,9 +2,9 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
-use Lemuria\Model\Fantasya\Party;
 use function Lemuria\getClass;
 use Lemuria\Engine\Fantasya\Combat\Battle;
+use Lemuria\Engine\Fantasya\Combat\BattleLog;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Building\Market;
@@ -19,6 +19,7 @@ use Lemuria\Model\Fantasya\ExtensionTrait;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Kind;
 use Lemuria\Model\Fantasya\Market\Sales;
+use Lemuria\Model\Fantasya\Party;
 use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Unit;
@@ -147,11 +148,12 @@ class Hearsay extends AbstractAct
 	}
 
 	/**
-	 * @param \ArrayObject<Battle> $battles
+	 * @param \ArrayObject<BattleLog> $battles
 	 */
 	private function addBattleRumours(\ArrayObject $battles): void {
 		$r = self::ROUNDS[Myth::Battle->name];
-		foreach ($battles as $battle) {
+		foreach ($battles as $battleLog) {
+			$battle   = $battleLog->Battle();
 			$attacker = $this->getBattleAttacker($battle);
 			$defender = $this->getBattleDefender($battle, $attacker);
 

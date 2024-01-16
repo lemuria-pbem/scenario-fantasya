@@ -4,6 +4,7 @@ namespace Lemuria\Scenario\Fantasya\Engine\Event;
 
 use function Lemuria\getClass;
 use Lemuria\Engine\Fantasya\Combat\Battle;
+use Lemuria\Engine\Fantasya\Combat\BattleLog;
 use Lemuria\Engine\Fantasya\Event\AbstractEvent;
 use Lemuria\Engine\Fantasya\Priority;
 use Lemuria\Engine\Fantasya\State;
