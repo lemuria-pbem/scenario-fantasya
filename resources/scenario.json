@@ -1,7 +1,31 @@
 {
 	"hearsay": {
 		"battle": {
-
+			"monster": {
+				"npc": "In $region haben $date Monster Nichtspielercharaktere überfallen.",
+				"player": "In $region gab es einen Angriff von Monstern."
+			},
+			"npc": {
+				"monster": "In $region haben Nichtspielercharaktere $date unter den Monstern aufgeräumt.",
+				"npc": "In $region haben Nichtspielercharaktere $date miteinander gekämpft.",
+				"player": [
+					"In $region haben Nichtspielercharaktere $date die Partei $party überfallen.",
+					"In $region haben Nichtspielercharaktere $date die Parteien $party überfallen."
+				]
+			},
+			"player": {
+				"monster": "In $region hat die Partei $party $date die Monster bekämpft.",
+				"npc": "In $region hat die Partei $party $date Nichtspielercharaktere angegriffen.",
+				"player": "In $region gab es $date einen Kampf zwischen den Parteien $party."
+			},
+			"zombies": {
+				"monster": "In $region haben Zombies $date die Region überfallen.",
+				"npc": "In $region haben Zombies $date Nichtspielercharaktere überfallen.",
+				"player": [
+					"In $region haben Zombies $date die Partei $party überfallen.",
+					"In $region haben Zombies $date die Parteien $party überfallen."
+				]
+			}
 		},
 		"duty": {
 			"free": {

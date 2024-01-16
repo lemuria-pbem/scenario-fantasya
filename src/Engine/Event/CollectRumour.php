@@ -2,12 +2,12 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Engine\Event;
 
-use Lemuria\Id;
 use function Lemuria\getClass;
 use Lemuria\Engine\Fantasya\Combat\Battle;
 use Lemuria\Engine\Fantasya\Event\AbstractEvent;
 use Lemuria\Engine\Fantasya\Priority;
 use Lemuria\Engine\Fantasya\State;
+use Lemuria\Id;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Building\Market;
 use Lemuria\Model\Fantasya\Building\Port;

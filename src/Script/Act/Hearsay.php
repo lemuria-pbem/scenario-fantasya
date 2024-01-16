@@ -2,18 +2,24 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
+use Lemuria\Model\Fantasya\Party;
+use function Lemuria\getClass;
 use Lemuria\Engine\Fantasya\Combat\Battle;
+use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Building\Market;
 use Lemuria\Model\Fantasya\Building\Port;
+use Lemuria\Model\Fantasya\Commodity\Monster\Zombie;
 use Lemuria\Model\Fantasya\Construction;
 use Lemuria\Model\Fantasya\Extension\Duty;
 use Lemuria\Model\Fantasya\Extension\Fee;
 use Lemuria\Model\Fantasya\Extension\Market as MarketExtension;
 use Lemuria\Model\Fantasya\Extension\Trades;
 use Lemuria\Model\Fantasya\ExtensionTrait;
+use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Kind;
 use Lemuria\Model\Fantasya\Market\Sales;
+use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Engine\Event\CollectRumour;
@@ -22,6 +28,7 @@ use Lemuria\Scenario\Fantasya\Model\GoodKinds;
 use Lemuria\Scenario\Fantasya\Model\Myth;
 use Lemuria\Scenario\Fantasya\Model\Rumour;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
+use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\TranslateTrait;
 use Lemuria\Storage\Ini\Section;
 
@@ -30,6 +37,7 @@ use Lemuria\Storage\Ini\Section;
  */
 class Hearsay extends AbstractAct
 {
+	use BuilderTrait;
 	use ExtensionTrait;
 	use TranslateTrait;
 
@@ -51,6 +59,14 @@ class Hearsay extends AbstractAct
 
 	private string $date;
 
+	private Zombie $zombie;
+
+	public function __construct(AbstractScene $scene) {
+		parent::__construct($scene);
+		/** @var Zombie $zombie */
+		$zombie       = self::createMonster(Zombie::class);
+		$this->zombie = $zombie;
+	}
 	public function parse(Macro $macro): static {
 		parent::parse($macro);
 		$n = $macro->count();
@@ -131,10 +147,36 @@ class Hearsay extends AbstractAct
 	}
 
 	/**
-	 * @param \ArrayObject<Battle> $monsters
+	 * @param \ArrayObject<Battle> $battles
 	 */
 	private function addBattleRumours(\ArrayObject $battles): void {
-		//TODO
+		$r = self::ROUNDS[Myth::Battle->name];
+		foreach ($battles as $battle) {
+			$attacker = $this->getBattleAttacker($battle);
+			$defender = $this->getBattleDefender($battle, $attacker);
+
+			if (in_array($attacker, ['npc', 'zombies']) && $defender === 'player') {
+				$defParties = count($this->getBattlePlayerParties($battle->Defender()));
+				$rumour     = $this->dictionary->get('hearsay.battle.' . $attacker . '.' . $defender, $defParties === 1 ? 0 : 1);
+			} else {
+				$rumour = $this->dictionary->get('hearsay.battle.' . $attacker, $defender);
+			}
+
+			if ($attacker === 'player') {
+				if ($defender === 'player') {
+					$parties = array_merge($this->getBattlePlayerParties($battle->Attacker()), $this->getBattlePlayerParties($battle->Defender()));
+					$rumour  = $this->translateReplace($rumour, '$party', $this->combineParties($parties));
+				} else {
+					$rumour = $this->translateReplace($rumour, '$party', $this->getFirstParty($battle->Attacker()));
+				}
+			} elseif (isset($defParties)) {
+				$rumour = $this->translateReplace($rumour, '$party', $this->combineParties($this->getBattlePlayerParties($battle->Defender())));
+			}
+
+			$rumour              = $this->translateReplace($rumour, '$date', $this->date);
+			$rumour              = $this->translateReplace($rumour, '$region', $battle->Place()->Region()->Name());
+			$this->rumours[$r][] = $rumour;
+		}
 	}
 
 	/**
@@ -143,6 +185,9 @@ class Hearsay extends AbstractAct
 	private function addEncounterRumours(\ArrayObject $units): void {
 		$r = self::ROUNDS[Myth::Encounter->name];
 		foreach ($units as $unit) {
+			if ($unit === $this->unit){
+				continue;
+			}
 			$rumour              = $this->dictionary->random('hearsay.encounter');
 			$rumour              = $this->translateReplace($rumour, '$date', $this->date);
 			$rumour              = $this->translateReplace($rumour, '$name', $unit->Name());
@@ -198,12 +243,21 @@ class Hearsay extends AbstractAct
 	 * @param \ArrayObject<Unit> $monsters
 	 */
 	private function addMonsterRumours(\ArrayObject $monsters): void {
-		$r = self::ROUNDS[Myth::Monster->name];
+		$races = [];
 		foreach ($monsters as $unit) {
-			$rumour              = $this->dictionary->random('hearsay.monster', $unit->Size() > 1 ? 1 : 0);
+			$race = getClass($unit->Race());
+			if (!isset($races[$race])) {
+				$races[$race] = 0;
+			}
+			$races[$race] += $unit->Size();
+		}
+
+		$r = self::ROUNDS[Myth::Monster->name];
+		foreach ($races as $race => $size) {
+			$rumour              = $this->dictionary->random('hearsay.monster', $size > 1 ? 1 : 0);
 			$rumour              = $this->translateReplace($rumour, '$date', $this->date);
-			$rumour              = $this->translateReplace($rumour, '$monster', $unit->Race());
-			$rumour              = $this->translateReplace($rumour, '$region', $unit->Region()->Name());
+			$rumour              = $this->translateReplace($rumour, '$monster', self::createMonster($race));
+			$rumour              = $this->translateReplace($rumour, '$region', $this->unit->Region()->Name());
 			$this->rumours[$r][] = $rumour;
 		}
 	}
@@ -298,5 +352,102 @@ class Hearsay extends AbstractAct
 			return $last;
 		}
 		return implode(', ', $kinds) . ' und ' . $last;
+	}
+
+	/**
+	 * @param array<Party> $parties
+	 */
+	private function combineParties(array $parties): string {
+		$last = array_pop($parties);
+		if (empty($parties)) {
+			return $last->Name();
+		}
+		$names = [];
+		foreach ($parties as $party) {
+			$names[] = $party->Name();
+		}
+		return implode(', ', $names) . ' und ' . $last->Name();
+	}
+
+	private function getBattleAttacker(Battle $battle): string {
+		$npc     = false;
+		$zombie  = false;
+		$zombies = State::getInstance()->getTurnOptions()->Finder()->Party()->findByRace($this->zombie);
+		foreach ($battle->Attacker() as $party) {
+			$type = $party->Type();
+			if ($type === Type::Player) {
+				return 'player';
+			}
+			if ($type === Type::NPC) {
+				$npc = true;
+			} elseif ($party === $zombies) {
+				$zombie = true;
+			}
+		}
+		if ($zombie) {
+			return 'zombies';
+		}
+		if ($npc) {
+			return 'npc';
+		}
+		return 'monster';
+	}
+
+	private function getBattleDefender(Battle $battle, string $attacker): string {
+		$player  = false;
+		$npc     = false;
+		foreach ($battle->Defender() as $party) {
+			$type = $party->Type();
+			if ($type === Type::Player) {
+				$player = true;
+			} elseif ($type === Type::NPC) {
+				$npc = true;
+			}
+		}
+		switch ($attacker) {
+			case 'player' :
+			case 'npc' :
+			case 'zombies' :
+				if ($player) {
+					return 'player';
+				}
+				if ($npc) {
+					return 'npc';
+				}
+				return 'monster';
+			default:
+				if ($player) {
+					return 'player';
+				}
+				if ($npc) {
+					return 'npc';
+				}
+				return 'player';
+		}
+	}
+
+	/**
+	 * @param array<Party> $parties
+	 * @return array<Party>
+	 */
+	private function getBattlePlayerParties(array $parties): array {
+		foreach (array_keys($parties) as $i) {
+			if ($parties[$i]->Type() !== Type::Player) {
+				unset($parties[$i]);
+			}
+		}
+		return array_values($parties);
+	}
+
+	/**
+	 * @param array<Party> $parties
+	 */
+	private function getFirstParty(array $parties): string {
+		foreach ($parties as $party) {
+			if ($party->Type() === Type::Player) {
+				return $party->Name();
+			}
+		}
+		return '(Partei)';
 	}
 }
