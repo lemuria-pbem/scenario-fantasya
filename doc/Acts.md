@@ -12,6 +12,11 @@ Handlungen ausgeführt werden.
 Sammelt alle Vorkommnisse der angegebenen Art in den durchreisten Regionen. Ohne
 Angabe der Art werden alle Arten von Gerüchten gesammelt.
 
+## Händler()
+
+Wenn sich die Einheit nicht in einem Gebäude aufhält, bietet sie ihre Waren
+allen Parteien an, deren Einheiten sich in der Region aufhalten.
+
 ## Marktstand(_n_)
 
 1. Wenn in der Region ein Markt existiert, betritt die Einheit den Markt.

@@ -43,7 +43,7 @@ class LemuriaScripts implements Scripts
 	}
 
 	public function save(): static {
-		Lemuria::Log()->debug('Saving MPC scripts.');
+		Lemuria::Log()->debug('Saving NPC scripts.');
 		$scripts = [];
 		foreach ($this->scripts as $script) {
 			$data = $script->prepareNext()->Data();
