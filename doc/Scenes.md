@@ -1,8 +1,8 @@
 # Skripte
 
 Nichtspielercharaktere werden über Skripte gesteuert. Skripte können neue
-Einheiten erzeugen, oder einfache Befehle und komplexe Handlungen für die
-Einheiten setzen.
+Einheiten und andere Entitäten erzeugen, oder einfache Befehle und komplexe
+Handlungen für die Einheiten setzen.
 
 Skripte werden im INI-Format abgelegt; jede Sektion ist ein Skript.
 
@@ -36,7 +36,9 @@ das Skript ausgeführt wird.
 
     Beschreibung = Hier steht ein Text.
 
-## Einheit
+## Erzeugung neuer Entitäten
+
+### Einheit
 
 Das Skript **[Einheit]** erzeugt eine neue Einheit. Die _ID_ ist optional und
 wird nur benötigt, wenn andere Skripte sich auf die neue Einheit beziehen.
@@ -54,9 +56,9 @@ Optionale Schlüssel:
     Talent = Handeln 5, Ausdauer 1
     Talent = Reiten 2
 
-## Gebäude
+### Gebäude
 
-Gebäude können auf drei verschiene Arten erzeugt werden:
+Gebäude können auf drei verschiedene Arten erzeugt werden:
 
     [Gebäude]
     [Burg]
@@ -74,26 +76,12 @@ Notwendige Schlüssel:
 
 Optionale Schlüssel:
 
-    Gebäude = Holzfällerhütte    
+    Gebäude = Sägewerk    
     Größe = 5
 
-## Gerücht
+### Schiff
 
-Ein oder mehrere gesammelte Gerüchte werden in dieser Sektion angegeben.
-
-    [Gerücht]
-    Jedes Gerücht ist eine Zeile.
-
-Optionale Schlüssel:
-
-    Runden = 3
-
-Wenn eine Rundenanzahl angegeben ist, wird diese heruntergezählt und das Gerücht
-beim Ablauf des Countdowns gelöscht.
-
-## Schiffe
-
-Schiffe können auf zwei verschiene Arten erzeugt werden:
+Schiffe können auf zwei verschiedene Arten erzeugt werden:
 
     [Schiff]
 
@@ -109,7 +97,41 @@ Notwendige Schlüssel:
 
 Optionale Schlüssel:
 
-    Schiff = Karavell
+    Schiff = Langboot
+
+### Unikat
+
+Unikate können auf zwei verschiedene Arten erzeugt werden:
+
+    [Gegenstand]
+
+Hier muss der Gegenstandstyp als Schlüssel angegeben werden.
+
+Der Gegenstandstyp kann auch direkt als Sektionsname verwendet werden:
+
+    [Ring der Unsichtbarkeit]
+
+Notwendige Schlüssel:
+
+    Einheit|Region|Gebäude|Schiff = n1
+
+Optionale Schlüssel:
+
+    Gegenstand = Ring der Unsichtbarkeit
+
+## Gerücht
+
+Ein oder mehrere gesammelte Gerüchte werden in dieser Sektion angegeben.
+
+    [Gerücht]
+    Jedes Gerücht ist eine Zeile.
+
+Optionale Schlüssel:
+
+    Runden = 3
+
+Wenn eine Rundenanzahl angegeben ist, wird diese heruntergezählt und das Gerücht
+beim Ablauf des Countdowns gelöscht.
 
 ## Skript
 

@@ -61,10 +61,19 @@ class CreateUnit extends AbstractCreate
 		$construction = $this->getOptionalValue('Gebäude');
 		if ($construction) {
 			$this->construction = Construction::get($this->mapper()->forAlias(Domain::Construction, Id::fromId($construction)));
+			if (!$this->region) {
+				$this->region = $this->construction->Region();
+			}
 		}
 		$vessel = $this->getOptionalValue('Schiff');
 		if ($vessel) {
 			$this->vessel = Vessel::get($this->mapper()->forAlias(Domain::Vessel, Id::fromId($vessel)));
+			if (!$this->region) {
+				$this->region = $this->vessel->Region();
+			}
+		}
+		if (!$region && !$construction && !$vessel) {
+			throw new ParseException('One of region|construction|vessel must be given.');
 		}
 		return $this;
 	}

@@ -18,6 +18,7 @@ use Lemuria\Scenario\Fantasya\Script\Act\Merchant;
 use Lemuria\Scenario\Fantasya\Script\Act\Roundtrip;
 use Lemuria\Scenario\Fantasya\Script\Act\Trip;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateConstruction;
+use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateUnicum;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateUnit;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateVessel;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
@@ -30,12 +31,13 @@ class Factory
 	 * @type array<string, string>
 	 */
 	protected const array SCENE = [
-		'Burg'    => CreateConstruction::class,
-		'Einheit' => CreateUnit::class,
-		'Gebäude' => CreateConstruction::class,
-		'Gerücht' => SpreadRumour::class,
-		'Schiff'  => CreateVessel::class,
-		'Skript'  => SetOrders::class
+		'Burg'       => CreateConstruction::class,
+		'Einheit'    => CreateUnit::class,
+		'Gebäude'    => CreateConstruction::class,
+		'Gegenstand' => CreateUnicum::class,
+		'Gerücht'    => SpreadRumour::class,
+		'Schiff'     => CreateVessel::class,
+		'Skript'     => SetOrders::class
 	];
 
 	/**
@@ -64,22 +66,30 @@ class Factory
 	 * @throws UnknownSceneException
 	 */
 	public function createScene(Script $script, Section $section): Scene {
-		$name  = $section->Name();
+		$name      = $section->Name();
+		$arguments = '';
+
 		$space = strpos($name, ' ');
 		if ($space > 1) {
-			$arguments = trim(substr($name, $space));
-			$name      = substr($name, 0, $space);
+			$class = self::SCENE[substr($name, 0, $space)] ?? null;
+			if ($class) {
+				$arguments = trim(substr($name, $space));
+			}
 		} else {
-			$arguments = '';
+			$class = self::SCENE[$name] ?? null;
 		}
 
-		$class = self::SCENE[$name] ?? null;
 		if (!$class) {
-			try {
-				$this->factory->building($name);
-				$class = CreateConstruction::class;
-			} catch (SingletonException|UnknownItemException) {
-				throw new UnknownSceneException($name);
+			if ($this->factory->isComposition($name)) {
+				$class = CreateUnicum::class;
+			} else {
+				$class = $this->tryBuildingCreation($name);
+				if (!$class) {
+					$class = $this->tryShipCreation($name);
+					if (!$class) {
+						throw new UnknownSceneException($name);
+					}
+				}
 			}
 		}
 		/** @var AbstractScene $scene */
@@ -113,6 +123,24 @@ class Factory
 			Lemuria::Log()->debug('Arguments in section ' . $name . ' replaced with ' . $arguments . '.');
 		} else {
 			throw new UnknownSceneException($name);
+		}
+	}
+
+	private function tryBuildingCreation(string $name): ?string {
+		try {
+			$this->factory->building($name);
+			return CreateConstruction::class;
+		} catch (SingletonException|UnknownItemException) {
+			return null;
+		}
+	}
+
+	private function tryShipCreation(string $name): ?string {
+		try {
+			$this->factory->ship($name);
+			return CreateVessel::class;
+		} catch (SingletonException|UnknownItemException) {
+			return null;
 		}
 	}
 }
