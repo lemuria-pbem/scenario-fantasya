@@ -14,10 +14,16 @@ use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
+use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 use Lemuria\Storage\Ini\Values;
 
+/**
+ * Act: Marktstand(N)
+ */
 class Market extends AbstractAct
 {
+	use VisitationTrait;
+
 	private const string LAST_TRADE = 'LetzterHandel';
 
 	private Values $values;
@@ -29,10 +35,6 @@ class Market extends AbstractAct
 	public function __construct(SetOrders $scene) {
 		parent::__construct($scene);
 		$this->values = $scene->Section()->Values();
-	}
-
-	public function Unit(): Unit {
-		return $this->unit;
 	}
 
 	public function parse(Macro $macro): static {
@@ -49,6 +51,8 @@ class Market extends AbstractAct
 			if (!$this->getChainResult()) {
 				$leave = new Leave(new Phrase('VERLASSEN'), $this->scene->context());
 				State::getInstance()->injectIntoTurn($leave);
+			} else {
+				$this->addVisitationEffect();
 			}
 		} else {
 			$context = $this->scene->context();
@@ -70,6 +74,7 @@ class Market extends AbstractAct
 					// TODO: Enter logic could be improved to consider all markets.
 					Lemuria::Log()->debug('Market act in ' . $region . ' chose the first market, there are more.');
 				}
+				$this->addVisitationEffect();
 			}
 		}
 

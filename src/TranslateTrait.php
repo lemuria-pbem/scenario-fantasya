@@ -2,11 +2,12 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
-use Lemuria\Model\Fantasya\Unit;
 use function Lemuria\getClass;
+use function Lemuria\number;
 use Lemuria\Engine\Fantasya\Factory\GrammarTrait;
 use Lemuria\Engine\Fantasya\Message\Casus;
 use Lemuria\Item;
+use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Singleton;
 
 trait TranslateTrait
@@ -36,6 +37,11 @@ trait TranslateTrait
 			return str_replace($match, $this->replace($match, $object), $translation);
 		}
 		return str_replace($variable, (string)$object, $translation);
+	}
+
+	protected function replaceItem(string $translation, string $variable, Item $item): string {
+		$replace = number($item->Count()) . ' ' . $this->translateItem($item);
+		return str_replace($variable, $replace, $translation);
 	}
 
 	protected function translateKey(string $keyPath, ?int $index = null): ?string {

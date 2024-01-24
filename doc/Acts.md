@@ -7,17 +7,31 @@ Befehle erzeugen können.
 Eine Handlung kann ein Ergebnis erzeugen, das bestimmt, ob weitere nachfolgende
 Handlungen ausgeführt werden.
 
-## Gerüchte([Begegnung|Kampf|Markt|Monster|Steuer], …)
+## Ankauf
+
+Syntax: `Ankauf([Gegenstand], …)`
+
+Die Einheit möchte besondere Gegenstände erwerben und macht Besuchern
+entsprechende Angebote. Es können einzelne Gegenstandsarten angegeben werden,
+wenn nicht für alle Gegenstände Angebote gemacht werden sollen.
+
+## Gerüchte
+
+Syntax: `Gerüchte([Begegnung|Kampf|Markt|Monster|Steuer], …)`
 
 Sammelt alle Vorkommnisse der angegebenen Art in den durchreisten Regionen. Ohne
 Angabe der Art werden alle Arten von Gerüchten gesammelt.
 
-## Händler()
+## Händler
+
+Syntax: `Händler()`
 
 Wenn sich die Einheit nicht in einem Gebäude aufhält, bietet sie ihre Waren
 allen Parteien an, deren Einheiten sich in der Region aufhalten.
 
-## Marktstand(_n_)
+## Marktstand
+
+Syntax: `Marktstand(n)`
 
 1. Wenn in der Region ein Markt existiert, betritt die Einheit den Markt.
 2. Solange andere Einheiten Handel treiben, bleibt die Einheit im Markt, und es
@@ -30,12 +44,18 @@ allen Parteien an, deren Einheiten sich in der Region aufhalten.
 Der Schlüssel _LetzterHandel_ speichert, wie viele Runden seit dem letzten
 Handel vergangen sind.
 
-## Reise(_ID_)
+## Reise
 
-Reist auf dem kürzesten Weg zu einer Region.
+Syntax: `Reise(ID)`
 
-## Rundreise(_a_, _b_, …)
+Reist auf dem kürzesten Weg zu der Region mit der Nummer _ID_.
+
+## Rundreise
+
+Syntax: `Rundreise(a, b, …)`
 
 Eine Rundreise funktioniert wie der Befehl `ROUTE`. Die Einheit sucht sich die
 günstigste Reiseroute zur nächsten Region und reist dorthin, indem ein passender
 Reisebefehl erstellt wird.
+
+Die Ziele werden jeweils nach Erreichen der nächsten Region rotiert.

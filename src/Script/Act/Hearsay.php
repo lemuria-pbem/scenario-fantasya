@@ -34,7 +34,7 @@ use Lemuria\Scenario\Fantasya\TranslateTrait;
 use Lemuria\Storage\Ini\Section;
 
 /**
- * Collect rumours to tell later.
+ * Act: Gerüchte(…)
  */
 class Hearsay extends AbstractAct
 {

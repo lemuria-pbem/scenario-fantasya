@@ -8,6 +8,9 @@ use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\TripTrait;
 
+/**
+ * Act: Reise(ID)
+ */
 class Trip extends AbstractAct
 {
 	use TripTrait;

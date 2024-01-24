@@ -19,6 +19,10 @@ abstract class AbstractAct implements Act
 		$this->unit = $scene->context()->Unit();
 	}
 
+	public function Unit(): Unit {
+		return $this->unit;
+	}
+
 	public function parse(Macro $macro): static {
 		$this->macro = $macro;
 		return $this;

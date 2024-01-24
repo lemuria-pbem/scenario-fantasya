@@ -1,4 +1,7 @@
 {
+	"demand": {
+		"unicum": "Ich biete Euch $payment für {g/akk:das:$composition} $unicum."
+	},
 	"hearsay": {
 		"battle": {
 			"monster": {

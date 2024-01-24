@@ -7,12 +7,19 @@ use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
 use Lemuria\Scenario\Fantasya\Engine\Event\FinishMerchants;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
+use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 
+/**
+ * Act: Händler()
+ */
 class Merchant extends AbstractAct
 {
+	use VisitationTrait;
+
 	public function play(): static {
 		parent::play();
 		FinishMerchants::register($this);
+		$this->addVisitationEffect();
 		return $this->addToChain();
 	}
 

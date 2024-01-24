@@ -2,6 +2,9 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
+/**
+ * Act: Rundreise(…)
+ */
 class Roundtrip extends Trip
 {
 	protected function startTrip(): bool {
