@@ -22,8 +22,6 @@ class ScenarioGame extends LemuriaGame
 	}
 
 	/**
-	 * Get NPC scripts data.
-	 *
 	 * @return array<string, SectionList>
 	 */
 	public function getScripts(): array {
@@ -38,9 +36,12 @@ class ScenarioGame extends LemuriaGame
 		return $data;
 	}
 
+	public function getQuests(): array {
+		return parent::getQuests();
+		return $this->getData('quests.json');
+	}
+
 	/**
-	 * Set NPC scripts data.
-	 *
 	 * @var array<string, SectionList> $scripts
 	 */
 	public function setScripts(array $scripts): static {
@@ -50,6 +51,11 @@ class ScenarioGame extends LemuriaGame
 			$provider->write($file, $data);
 		}
 		return $this;
+	}
+
+	public function setQuests(array $quests): static {
+		return parent::setQuests($quests);
+		return $this->setData('quests.json', $quests);
 	}
 
 	/**
