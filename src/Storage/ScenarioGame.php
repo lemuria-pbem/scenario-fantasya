@@ -37,7 +37,6 @@ class ScenarioGame extends LemuriaGame
 	}
 
 	public function getQuests(): array {
-		return parent::getQuests();
 		return $this->getData('quests.json');
 	}
 
@@ -54,8 +53,7 @@ class ScenarioGame extends LemuriaGame
 	}
 
 	public function setQuests(array $quests): static {
-		return parent::setQuests($quests);
-		return $this->setData('quests.json', $quests);
+		return $this->setData('quests.json', array_values($quests));
 	}
 
 	/**

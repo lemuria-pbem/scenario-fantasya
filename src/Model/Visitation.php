@@ -5,16 +5,21 @@ namespace Lemuria\Scenario\Fantasya\Model;
 use Lemuria\Engine\Fantasya\Effect\WelcomeVisitor;
 use Lemuria\Engine\Fantasya\Factory\Scenario\Visitation as VisitationInterface;
 use Lemuria\Lemuria;
+use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Commodity;
 use Lemuria\Model\Fantasya\Commodity\Silver;
 use Lemuria\Model\Fantasya\Composition\HerbAlmanac;
 use Lemuria\Model\Fantasya\Composition\Scroll;
 use Lemuria\Model\Fantasya\Composition\Spellbook;
+use Lemuria\Model\Fantasya\Extension\Quests;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\MagicRing;
 use Lemuria\Model\Fantasya\Quantity;
+use Lemuria\Model\Fantasya\Scenario\Quest;
 use Lemuria\Model\Fantasya\Unicum;
 use Lemuria\Model\Fantasya\Unit;
+use Lemuria\Scenario\Fantasya\Factory\BuilderTrait as ScenarioBuilderTrait;
+use Lemuria\Scenario\Fantasya\Quest\Controller\SellUnicum;
 use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 use Lemuria\Scenario\Fantasya\TranslateTrait;
 use Lemuria\SingletonSet;
@@ -23,6 +28,7 @@ use Lemuria\StringList;
 class Visitation implements VisitationInterface
 {
 	use BuilderTrait;
+	use ScenarioBuilderTrait;
 	use TranslateTrait;
 	use VisitationTrait;
 
@@ -77,6 +83,7 @@ class Visitation implements VisitationInterface
 				}
 				$payment = $this->calculateSilverValue($unicum);
 				if ($payment->Count() > 0) {
+					$this->createSellUnicumQuest($unicum, $payment);
 					$message          = $this->dictionary->get('demand.unicum');
 					$message          = $this->replaceItem($message, '$payment', $payment);
 					$message          = $this->translateReplace($message, '$composition', $composition);
@@ -99,5 +106,28 @@ class Visitation implements VisitationInterface
 			default                             => 0
 		};
 		return new Quantity(self::$silver, $value);
+	}
+
+	protected function createSellUnicumQuest(Unicum $unicum, Quantity $payment): void {
+		$extensions = $this->unit->Extensions();
+		if (!$extensions->offsetExists(Quests::class)) {
+			$extensions->add(new Quests($this->unit));
+		}
+		/** @var Quests $quests */
+		$quests = $extensions[Quests::class];
+		/** @var SellUnicum $controller */
+		$controller = self::createController(SellUnicum::class);
+		foreach ($quests->getAll($controller) as $quest) {
+			if ($controller->setPayload($quest)->Unicum() === $unicum) {
+				$controller->setPayment($payment);
+				return;
+			}
+		}
+
+		$quest = new Quest();
+		$quest->setId(Lemuria::Catalog()->nextId(Domain::Quest));
+		$quest->setController($controller);
+		$controller->setPayload($quest)->setUnicum($unicum)->setPayment($payment)->setSeller($unicum->Collector());
+		$quests->add($quest);
 	}
 }

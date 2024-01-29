@@ -200,44 +200,48 @@ class Hearsay extends AbstractAct
 	}
 
 	/**
-	 * @param \ArrayObject<Construction> $constructions
+	 * @param \ArrayObject<array<Construction>> $constructionsWithFee
 	 */
-	private function addFeeRumours(\ArrayObject $constructions): void {
-		foreach ($constructions as $construction) {
-			$extensions = $construction->Extensions();
-			switch ($construction->Building()::class) {
-				case Market::class :
-					/** @var MarketExtension $market */
-					$market = $extensions->offsetGet(MarketExtension::class);
-					$this->addFeeRumour($construction, $market->Fee());
-					break;
-				case Port::class :
-					/** @var Duty $duty */
-					$duty = $extensions->offsetGet(Duty::class);
-					$this->addDutyRumour($construction, $duty->Duty());
-				default :
-					/** @var Fee $fee */
-					$fee = $extensions->offsetGet(Fee::class);
-					$this->addFeeRumour($construction, $fee->Fee());
+	private function addFeeRumours(\ArrayObject $constructionsWithFee): void {
+		foreach ($constructionsWithFee as $constructions) {
+			foreach ($constructions as $construction) {
+				$extensions = $construction->Extensions();
+				switch ($construction->Building()::class) {
+					case Market::class :
+						/** @var MarketExtension $market */
+						$market = $extensions->offsetGet(MarketExtension::class);
+						$this->addFeeRumour($construction, $market->Fee());
+						break;
+					case Port::class :
+						/** @var Duty $duty */
+						$duty = $extensions->offsetGet(Duty::class);
+						$this->addDutyRumour($construction, $duty->Duty());
+					default :
+						/** @var Fee $fee */
+						$fee = $extensions->offsetGet(Fee::class);
+						$this->addFeeRumour($construction, $fee->Fee());
+				}
 			}
 		}
 	}
 
 	/**
-	 * @param \ArrayObject<Construction> $markets
+	 * @param \ArrayObject<array<Construction>> $marketsWithFee
 	 */
-	private function addMarketRumours(\ArrayObject $markets): void {
-		foreach ($markets as $market) {
-			$offer  = [];
-			$demand = [];
-			$kinds  = $this->getMarketGoods($market);
-			foreach ($kinds->Offer() as $kind) {
-				$offer[] = $this->dictionary->get('kind' , $kind->name);
+	private function addMarketRumours(\ArrayObject $marketsWithFee): void {
+		foreach ($marketsWithFee as $markets) {
+			foreach ($markets as $market) {
+				$offer  = [];
+				$demand = [];
+				$kinds  = $this->getMarketGoods($market);
+				foreach ($kinds->Offer() as $kind) {
+					$offer[] = $this->dictionary->get('kind', $kind->name);
+				}
+				foreach ($kinds->Demand() as $kind) {
+					$demand[] = $this->dictionary->get('kind', $kind->name);
+				}
+				$this->addMarketRumour($market, $offer, $demand);
 			}
-			foreach ($kinds->Demand() as $kind) {
-				$demand[] = $this->dictionary->get('kind' , $kind->name);
-			}
-			$this->addMarketRumour($market, $offer, $demand);
 		}
 	}
 

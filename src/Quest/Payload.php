@@ -12,7 +12,11 @@ class Payload implements \ArrayAccess, PayloadModel
 {
 	use SerializableTrait;
 
+	public final const int IMMORTAL = PHP_INT_MAX;
+
 	private const string STATUS = 'status';
+
+	private const string TTL = 'ttl';
 
 	private array $data = [
 		self::STATUS => []
@@ -39,21 +43,45 @@ class Payload implements \ArrayAccess, PayloadModel
 	}
 
 	public function serialize(): array {
-		$statuses = [];
-		foreach ($this->data[self::STATUS] as $id => $status) {
-			/** @var Status $status */
-			$statuses[$id] = $status->value;
+		$data = [];
+		foreach ($this->data as $key => $value) {
+			if ($key === self::STATUS) {
+				$statuses = [];
+				foreach ($value as $id => $status) {
+					/** @var Status $status */
+					$statuses[$id] = $status->value;
+				}
+				$data[self::STATUS] = $statuses;
+			} else {
+				$data[$key] = $value;
+			}
 		}
-		return [self::STATUS => $statuses];
+		return $data;
 	}
 
 	public function unserialize(array $data): static {
-		$statuses = [];
-		foreach ($data[self::STATUS] as $id => $value) {
-			$statuses[$id] = Status::from($value);
+		$this->data = [];
+		foreach ($data as $key => $value) {
+			if ($key === self::STATUS) {
+				$statuses = [];
+				foreach ($value as $id => $status) {
+					$statuses[$id] = Status::from($status);
+				}
+				$this->data[self::STATUS] = $statuses;
+			} else {
+				$this->data[$key] = $value;
+			}
 		}
-		$this->data[self::STATUS] = $statuses;
 		return $this;
+	}
+
+	public function hasAnyStatus(Status $any): bool {
+		foreach ($this->data[self::STATUS] as $status) {
+			if ($status === $any) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function status(Party $party): Status {
@@ -61,9 +89,23 @@ class Payload implements \ArrayAccess, PayloadModel
 		return $this->data[self::STATUS][$id] ?? Status::None;
 	}
 
-	public function setStatus(Party $party, Status $status): void {
-		$id = $party->Id()->Id();
+	public function setStatus(Party $party, Status $status): static {
+		$id                            = $party->Id()->Id();
 		$this->data[self::STATUS][$id] = $status;
+		return $this;
+	}
+
+	public function ttl(): int {
+		return $this->data[self::TTL] ?? PHP_INT_MAX;
+	}
+
+	public function setTtl(int $ttl): static {
+		if ($ttl >= 0) {
+			$this->data[self::TTL] = $ttl;
+		} else {
+			unset($this->data[self::TTL]);
+		}
+		return $this;
 	}
 
 	protected function validateSerializedData(array $data): void {

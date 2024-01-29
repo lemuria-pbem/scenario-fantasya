@@ -10,11 +10,14 @@ use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Resources;
 use Lemuria\Model\Fantasya\Unicum;
 use Lemuria\Model\Fantasya\Unit;
+use Lemuria\Scenario\Fantasya\Quest\Payload;
 use Lemuria\Scenario\Fantasya\Quest\Status;
 
 class SellUnicum extends AbstractController
 {
 	use BuilderTrait;
+
+	protected const int TTL = 1;
 
 	private const string PARTY = 'party';
 
@@ -38,17 +41,17 @@ class SellUnicum extends AbstractController
 
 	public function setSeller(Party|Unit $seller): static {
 		$party = $seller instanceof Party ? $seller : $seller->Party();
-		$this->payload()->offsetSet(self::PARTY, $party->Id()->Id());
+		$this->initTtl()->offsetSet(self::PARTY, $party->Id()->Id());
 		return $this;
 	}
 
 	public function setUnicum(Unicum $unicum): static {
-		$this->payload()->offsetSet(self::UNICUM, $unicum->Id()->Id());
+		$this->initTtl()->offsetSet(self::UNICUM, $unicum->Id()->Id());
 		return $this;
 	}
 
 	public function setPayment(Quantity $payment): static {
-		$this->payload()->offsetSet(self::PAYMENT, [(string)$payment->Commodity() => $payment->Count()]);
+		$this->initTtl()->offsetSet(self::PAYMENT, [(string)$payment->Commodity() => $payment->Count()]);
 		return $this;
 	}
 
@@ -69,6 +72,10 @@ class SellUnicum extends AbstractController
 
 	protected function checkForFinish(): bool {
 		return (bool)$this->canBeFulfilled();
+	}
+
+	protected function initTtl(): Payload {
+		return $this->payload()->setTtl(self::TTL);
 	}
 
 	private function canBeFulfilled(): ?Resources {

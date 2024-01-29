@@ -13,7 +13,7 @@ trait BuilderTrait
 	 *
 	 * @throws SingletonException
 	 */
-	protected static function createMessageType(string $class): Controller {
+	protected static function createController(string $class): Controller {
 		$controller = Lemuria::Builder()->create($class);
 		if ($controller instanceof Controller) {
 			return $controller;

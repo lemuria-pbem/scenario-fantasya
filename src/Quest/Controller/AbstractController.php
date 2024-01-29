@@ -25,7 +25,8 @@ abstract class AbstractController implements Controller
 	protected Unit $unit;
 
 	public function createPayload(): PayloadModel {
-		return new Payload();
+		$this->payload = new Payload();
+		return $this->initTtl();
 	}
 
 	public function setPayload(Quest $quest): static {
@@ -74,6 +75,10 @@ abstract class AbstractController implements Controller
 
 	abstract protected function checkForFinish(): bool;
 
+	protected function initTtl(): Payload {
+		return $this->payload();
+	}
+
 	protected function checkForAssign(): bool {
 		return true;
 	}
@@ -105,5 +110,13 @@ abstract class AbstractController implements Controller
 
 	protected function setStatus(Status $status): void {
 		$this->payload()->setStatus($this->unit->Party(), $status);
+	}
+
+	protected function ttl(): int {
+		return $this->payload()->ttl();
+	}
+
+	protected function setTtl(int $ttl): void {
+		$this->payload()->setTtl($ttl);
 	}
 }

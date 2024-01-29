@@ -13,7 +13,7 @@ class SingletonCatalog implements SingletonCatalogInterface
 	/**
 	 * @type array<string>
 	 */
-	private const array GROUPS = ['Quest'];
+	private const array GROUPS = ['Quest\\Controller'];
 
 	/**
 	 * @return array<SingletonGroup>
