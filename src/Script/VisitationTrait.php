@@ -11,11 +11,14 @@ use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Commodity\Silver;
 use Lemuria\Model\Fantasya\Composition;
 use Lemuria\Model\Fantasya\Composition\AbstractComposition;
+use Lemuria\Model\Fantasya\Extension\QuestsWithPerson;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\HerbalBook;
+use Lemuria\Model\Fantasya\Scenario\Quest;
 use Lemuria\Model\Fantasya\Spell;
 use Lemuria\Model\Fantasya\Talent;
 use Lemuria\Model\Fantasya\Talent\Magic;
+use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Model\Visitation;
 use Lemuria\Singleton;
 use Lemuria\SingletonSet;
@@ -87,5 +90,16 @@ trait VisitationTrait
 			}
 		}
 		return $value;
+	}
+
+	private function offerQuestTo(Quest $quest, Unit $unit): void {
+		$extensions = $unit->Party()->Extensions();
+		if ($extensions->offsetExists(QuestsWithPerson::class)) {
+			$quests = $extensions->offsetGet(QuestsWithPerson::class);
+		} else {
+			$quests = new QuestsWithPerson();
+			$extensions->add($quests);
+		}
+		$quests->add($quest, $unit);
 	}
 }

@@ -6,6 +6,7 @@ use Lemuria\Engine\Fantasya\Event\AbstractEvent;
 use Lemuria\Engine\Fantasya\Priority;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Extension\QuestsWithPerson;
 use Lemuria\Model\Fantasya\Party;
 use Lemuria\Model\Fantasya\Party\Type;
 
@@ -21,6 +22,9 @@ final class NPC extends AbstractEvent
 	protected function run(): void {
 		$count = 0;
 		foreach (Party::all() as $party) {
+			if ($party->Type() === Type::Player) {
+				$party->Extensions()->offsetUnset(QuestsWithPerson::class);
+			}
 			if ($party->Type() === Type::NPC) {
 				foreach ($party->People()->getClone() as $unit) {
 					if ($unit->Size() > 0) {

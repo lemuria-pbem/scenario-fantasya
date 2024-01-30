@@ -83,7 +83,8 @@ class Visitation implements VisitationInterface
 				}
 				$payment = $this->calculateSilverValue($unicum);
 				if ($payment->Count() > 0) {
-					$this->createSellUnicumQuest($unicum, $payment);
+					$quest = $this->createSellUnicumQuest($unicum, $payment);
+					$this->offerQuestTo($quest, $this->visitor);
 					$message          = $this->dictionary->get('demand.unicum');
 					$message          = $this->replaceItem($message, '$payment', $payment);
 					$message          = $this->translateReplace($message, '$composition', $composition);
@@ -108,7 +109,7 @@ class Visitation implements VisitationInterface
 		return new Quantity(self::$silver, $value);
 	}
 
-	protected function createSellUnicumQuest(Unicum $unicum, Quantity $payment): void {
+	protected function createSellUnicumQuest(Unicum $unicum, Quantity $payment): Quest {
 		$extensions = $this->unit->Extensions();
 		if (!$extensions->offsetExists(Quests::class)) {
 			$extensions->add(new Quests($this->unit));
@@ -120,7 +121,7 @@ class Visitation implements VisitationInterface
 		foreach ($quests->getAll($controller) as $quest) {
 			if ($controller->setPayload($quest)->Unicum() === $unicum) {
 				$controller->setPayment($payment);
-				return;
+				return $quest;
 			}
 		}
 
@@ -129,5 +130,6 @@ class Visitation implements VisitationInterface
 		$quest->setController($controller);
 		$controller->setPayload($quest)->setUnicum($unicum)->setPayment($payment)->setSeller($unicum->Collector());
 		$quests->add($quest);
+		return $quest;
 	}
 }
