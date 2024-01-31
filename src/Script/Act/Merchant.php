@@ -28,7 +28,6 @@ class Merchant extends AbstractAct
 	}
 
 	public function finish(): void {
-		//TODO logging
 		if (!$this->unit->Construction()) {
 			$effect   = new VisitEffect(State::getInstance());
 			$existing = Lemuria::Score()->find($effect->setUnit($this->unit));
