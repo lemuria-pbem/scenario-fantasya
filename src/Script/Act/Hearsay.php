@@ -273,7 +273,7 @@ class Hearsay extends AbstractAct
 		$r        = self::ROUNDS[Myth::Fee->name];
 		if ($fee instanceof Quantity) {
 			$rumour = $this->dictionary->get('hearsay.fee.fixed', $building);
-			$rumour = $this->translateReplace($rumour, '$fee', $this->translateItem($fee));
+			$rumour = $this->translateReplace($rumour, '$fee', $fee);
 		} elseif (is_float($fee)) {
 			$rumour = $this->dictionary->get('hearsay.fee.rate', $building);
 			$rumour = $this->translateReplace($rumour, '$fee', (string)(int)round(100 * $fee));

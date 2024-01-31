@@ -14,7 +14,7 @@ trait TranslateTrait
 {
 	use GrammarTrait;
 
-	protected function translateReplace(string $translation, string $variable, Singleton|string $object): ?string {
+	protected function translateReplace(string $translation, string $variable, Item|Singleton|string $object): ?string {
 		$name = str_replace('$', '\\$', $variable);
 		if (preg_match('|{([gr])/([a-z]+):([^:]+):' . $name . '}|', $translation, $matches) === 1) {
 			$match = $matches[0];
@@ -35,6 +35,10 @@ trait TranslateTrait
 		if (preg_match('/({[^=]+=' . $name . '})+/', $translation, $matches) === 1) {
 			$match = $matches[1];
 			return str_replace($match, $this->replace($match, $object), $translation);
+		}
+		if ($object instanceof Item) {
+			$item = number($object->Count()) . ' ' . $this->translateItem($object);
+			return str_replace($variable, $item, $translation);
 		}
 		return str_replace($variable, (string)$object, $translation);
 	}
