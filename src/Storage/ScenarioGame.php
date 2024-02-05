@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Storage;
 
 use Lemuria\Engine\Fantasya\Storage\LemuriaGame;
+use Lemuria\Model\Fantasya\Scenario\Quest;
 use Lemuria\Model\Fantasya\Storage\JsonProvider;
 use Lemuria\Storage\Ini\SectionList;
 use Lemuria\Storage\IniProvider;
@@ -56,6 +57,15 @@ class ScenarioGame extends LemuriaGame
 		return $this->setData('quests.json', array_values($quests));
 	}
 
+	public function migrate(): static {
+		parent::migrate();
+		$data = $this->getQuests();
+		if ($this->migrateData(Quest::class, $data)) {
+			$this->setQuests($data);
+		}
+		return $this;
+	}
+
 	/**
 	 * @return array<string, string>
 	 */
@@ -63,5 +73,11 @@ class ScenarioGame extends LemuriaGame
 		$storage = parent::addStringsStorage($storage);
 		$storage[self::STRINGS_FILE] = new JsonProvider(self::STRINGS_DIR);
 		return $storage;
+	}
+
+	protected function getJsonFileNames(): array {
+		$fileNames   = parent::getJsonFileNames();
+		$fileNames[] = 'quests.json';
+		return $fileNames;
 	}
 }
