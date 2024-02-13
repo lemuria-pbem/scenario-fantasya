@@ -8,6 +8,7 @@ use Lemuria\Id;
 use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Ability;
+use Lemuria\Model\Fantasya\Aura;
 use Lemuria\Model\Fantasya\Construction;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Knowledge;
@@ -15,6 +16,8 @@ use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Race;
 use Lemuria\Model\Fantasya\Region;
 use Lemuria\Model\Fantasya\Resources;
+use Lemuria\Model\Fantasya\SpellBook;
+use Lemuria\Model\Fantasya\Talent\Magic;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Model\Fantasya\Vessel;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
@@ -39,6 +42,8 @@ class CreateUnit extends AbstractCreate
 
 	private Resources $inventory;
 
+	private SpellBook $spellBook;
+
 	public function parse(Section $section): static {
 		parent::parse($section);
 		$this->id          = $this->parseId($this->getOptionalValue('ID'));
@@ -48,11 +53,15 @@ class CreateUnit extends AbstractCreate
 		$this->size        = (int)$this->getOptionalValue('Anzahl');
 		$this->knowledge   = new Knowledge();
 		$this->inventory   = new Resources();
+		$this->spellBook   = new SpellBook();
 		foreach ($this->getValues('Talent') as $talent) {
 			$this->knowledge->add($this->parseAbility($talent));
 		}
 		foreach ($this->getValues('Besitz') as $item) {
 			$this->inventory->add($this->parseQuantity($item));
+		}
+		foreach ($this->getValues('Zauber') as $spell) {
+			$this->spellBook->add($this->factory()->spell($spell));
 		}
 		$region = $this->getOptionalValue('Region');
 		if ($region) {
@@ -104,6 +113,8 @@ class CreateUnit extends AbstractCreate
 		$unit->setIsHiding($presettings->IsHiding());
 		$unit->setDisguise($presettings->Disguise());
 
+		$this->initMagic($unit);
+
 		if ($this->id) {
 			$this->mapper()->map($unit, $this->id);
 		}
@@ -143,5 +154,18 @@ class CreateUnit extends AbstractCreate
 			return new Quantity($commodity, $count);
 		}
 		throw new ParseException('Invalid quantity: ' . $item);
+	}
+
+	private function initMagic(Unit $unit): void {
+		if ($this->knowledge->offsetExists(Magic::class)) {
+			$magic  = $this->knowledge->offsetGet(Magic::class);
+			$points = $magic->Level() ** 2;
+			$aura   = new Aura();
+			$aura->setMaximum($points)->setAura($points);
+			$unit->setAura($aura);
+			foreach ($this->spellBook as $spell) {
+				$unit->Party()->SpellBook()->add($spell);
+			}
+		}
 	}
 }
