@@ -133,6 +133,15 @@ Optionale Schlüssel:
 Wenn eine Rundenanzahl angegeben ist, wird diese heruntergezählt und das Gerücht
 beim Ablauf des Countdowns gelöscht.
 
+## Notizen
+
+In einer Notizen-Sektion kann beliebiger mehrzeiliger Text geschrieben werden,
+um die Skriptdatei zu kommentieren. Die Sektion wird unverändert in die neue
+Skriptdatei übernommen.
+
+    [Notizen]
+    Hier steht der Kommentar.
+
 ## Skript
 
 Eine Sektion **[Skript]** legt einfache Befehle oder komplexe Handlungen für

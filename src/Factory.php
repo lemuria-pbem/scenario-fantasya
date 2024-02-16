@@ -22,6 +22,7 @@ use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateConstruction;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateUnicum;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateUnit;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateVessel;
+use Lemuria\Scenario\Fantasya\Script\Scene\Notes;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
 use Lemuria\Scenario\Fantasya\Script\Scene\SpreadRumour;
 use Lemuria\Storage\Ini\Section;
@@ -37,6 +38,7 @@ class Factory
 		'Gebäude'    => CreateConstruction::class,
 		'Gegenstand' => CreateUnicum::class,
 		'Gerücht'    => SpreadRumour::class,
+		'Notizen'    => Notes::class,
 		'Schiff'     => CreateVessel::class,
 		'Skript'     => SetOrders::class
 	];
