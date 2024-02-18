@@ -36,7 +36,7 @@ class CreateVessel extends AbstractCreate
 		$vessel = new Vessel();
 		$id     = $this->createId(Domain::Vessel);
 		$vessel->setId($id);
-		$vessel->setShip($this->factory()->ship($this->ship));
+		$vessel->setShip($this->factory()->ship($this->ship))->setCompletion(1.0);
 		$this->region->Fleet()->add($vessel);
 
 		$vessel->setName($this->name ?? $this->ship . ' ' . $id);
