@@ -110,12 +110,8 @@ class Visitation implements VisitationInterface
 	}
 
 	protected function createSellUnicumQuest(Unicum $unicum, Quantity $payment): Quest {
-		$extensions = $this->unit->Extensions();
-		if (!$extensions->offsetExists(Quests::class)) {
-			$extensions->add(new Quests($this->unit));
-		}
 		/** @var Quests $quests */
-		$quests = $extensions[Quests::class];
+		$quests = $this->unit->Extensions()->init(Quests::class, fn() => new Quests($this->unit));
 		/** @var SellUnicum $controller */
 		$controller = self::createController(SellUnicum::class);
 		foreach ($quests->getAll($controller) as $quest) {

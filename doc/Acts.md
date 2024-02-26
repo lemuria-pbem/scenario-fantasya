@@ -59,3 +59,15 @@ günstigste Reiseroute zur nächsten Region und reist dorthin, indem ein passend
 Reisebefehl erstellt wird.
 
 Die Ziele werden jeweils nach Erreichen der nächsten Region rotiert.
+
+## Schiffspassage
+
+Syntax: `Schiffspassage(a, b, [Bezahlung])`
+
+Wenn sich die Einheit in der Region a befindet, unterbricht sie ihre Weiterreise
+bietet einen Transportauftrag an, um sich selbst per Schiff in die Region b
+bringen zu lassen. Wenn sie in der Region b ankommt, ist der Auftrag erfüllt und
+die Reise wird fortgesetzt.
+
+Als Bezahlung können ein oder mehrere Gegenstandstupel angegeben werden. Ohne
+Angabe wird eine Silbermenge abhängig vom Gewicht der Einheit berechnet.

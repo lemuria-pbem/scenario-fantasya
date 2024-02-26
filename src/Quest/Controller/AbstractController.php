@@ -2,6 +2,9 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Quest\Controller;
 
+use Lemuria\Engine\Fantasya\Factory\MessageTrait;
+use Lemuria\Engine\Fantasya\Message\Unit\QuestChoiceMessage;
+use Lemuria\Engine\Fantasya\Message\Unit\QuestFinishedMessage;
 use Lemuria\Exception\LemuriaException;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Party;
@@ -16,6 +19,7 @@ use Lemuria\SingletonTrait;
 
 abstract class AbstractController implements Controller
 {
+	use MessageTrait;
 	use SingletonTrait;
 
 	protected ?Quest $quest = null;
@@ -50,7 +54,12 @@ abstract class AbstractController implements Controller
 
 	public function isCompletedBy(Unit $unit): bool {
 		$this->unit = $unit;
-		return $this->status() === Status::Completed;
+		if ($this->status() === Status::Completed) {
+			$this->completed();
+			return true;
+		}
+		$this->choice();
+		return false;
 	}
 
 	public function callFrom(Unit $unit): static {
@@ -118,5 +127,13 @@ abstract class AbstractController implements Controller
 
 	protected function setTtl(int $ttl): void {
 		$this->payload()->setTtl($ttl);
+	}
+
+	protected function completed(): void {
+		$this->message(QuestFinishedMessage::class, $this->unit)->e($this->quest());
+	}
+
+	protected function choice(): void {
+		$this->message(QuestChoiceMessage::class, $this->unit)->e($this->quest());
 	}
 }

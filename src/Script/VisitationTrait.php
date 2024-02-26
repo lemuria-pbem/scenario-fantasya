@@ -93,13 +93,8 @@ trait VisitationTrait
 	}
 
 	private function offerQuestTo(Quest $quest, Unit $unit): void {
-		$extensions = $unit->Party()->Extensions();
-		if ($extensions->offsetExists(QuestsWithPerson::class)) {
-			$quests = $extensions->offsetGet(QuestsWithPerson::class);
-		} else {
-			$quests = new QuestsWithPerson();
-			$extensions->add($quests);
-		}
+		/** @var QuestsWithPerson $quests */
+		$quests = $unit->Party()->Extensions()->init(QuestsWithPerson::class);
 		$quests->add($quest, $unit);
 	}
 }

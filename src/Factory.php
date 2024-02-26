@@ -16,6 +16,7 @@ use Lemuria\Scenario\Fantasya\Script\Act\Demand;
 use Lemuria\Scenario\Fantasya\Script\Act\Hearsay;
 use Lemuria\Scenario\Fantasya\Script\Act\Market;
 use Lemuria\Scenario\Fantasya\Script\Act\Merchant;
+use Lemuria\Scenario\Fantasya\Script\Act\Passage;
 use Lemuria\Scenario\Fantasya\Script\Act\Roundtrip;
 use Lemuria\Scenario\Fantasya\Script\Act\Trip;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateConstruction;
@@ -47,12 +48,13 @@ class Factory
 	 * @type array<string, string>
 	 */
 	protected const array ACT = [
-		'Ankauf'     => Demand::class,
-		'Gerüchte'   => Hearsay::class,
-		'Händler'    => Merchant::class,
-		'Marktstand' => Market::class,
-		'Reise'      => Trip::class,
-		'Rundreise'  => Roundtrip::class
+		'Ankauf'         => Demand::class,
+		'Gerüchte'       => Hearsay::class,
+		'Händler'        => Merchant::class,
+		'Marktstand'     => Market::class,
+		'Reise'          => Trip::class,
+		'Rundreise'      => Roundtrip::class,
+		'Schiffspassage' => Passage::class
 	];
 
 	private CommandFactory $factory;

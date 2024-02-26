@@ -15,7 +15,6 @@ use Lemuria\Model\Fantasya\Extension\Duty;
 use Lemuria\Model\Fantasya\Extension\Fee;
 use Lemuria\Model\Fantasya\Extension\Market as MarketExtension;
 use Lemuria\Model\Fantasya\Extension\Trades;
-use Lemuria\Model\Fantasya\ExtensionTrait;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Kind;
 use Lemuria\Model\Fantasya\Market\Sales;
@@ -39,7 +38,6 @@ use Lemuria\Storage\Ini\Section;
 class Hearsay extends AbstractAct
 {
 	use BuilderTrait;
-	use ExtensionTrait;
 	use TranslateTrait;
 
 	protected const array ROUNDS = [

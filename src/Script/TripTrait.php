@@ -39,8 +39,9 @@ trait TripTrait
 		return $n;
 	}
 
-	protected function parseDestination(string $id): void {
+	protected function parseDestination(string $id): Region {
 		$this->destination = Region::get(Id::fromId($id));
+		return $this->destination;
 	}
 
 	protected function setStartFromUnit(): void {
