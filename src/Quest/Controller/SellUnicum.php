@@ -58,13 +58,15 @@ class SellUnicum extends AbstractController
 	protected function updateStatus(): void {
 		$inventory = $this->canBeFulfilled();
 		if ($inventory) {
-			$merchant = $this->quest()->Unit();
+			$quest    = $this->quest();
+			$merchant = $quest->Unit();
 			$unicum   = $this->Unicum();
 			$payment  = $this->Payment();
 			$inventory->remove($payment);
 			$this->unit->Treasury()->remove($unicum);
 			$merchant->Treasury()->add($unicum);
 			$this->unit->Inventory()->add(new Quantity($payment->Commodity(), $payment->Count()));
+			$this->removeQuest($this->unit);
 			$this->setStatus(Status::Completed);
 			Lemuria::Log()->debug('Unicum ' . $unicum->Id() . ' sold from ' . $this->unit . ' to ' . $merchant . ' for ' . $payment . '.');
 		}

@@ -83,8 +83,8 @@ trait VisitationTrait
 				if (!isset(self::$obtainmentSpells[$spell])) {
 					$difficulty = $spell->Difficulty();
 					for ($level = 1; $level <= $difficulty; $level++) {
-						$expense  = self::$magic->getExpense($level);
-						$value   += $expense;
+						$expense = self::$magic->getExpense($level);
+						$value  += $expense;
 					}
 				}
 			}

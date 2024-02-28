@@ -12,7 +12,6 @@ use Lemuria\Id;
 use Lemuria\Identifiable;
 use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
-use Lemuria\Model\Fantasya\Extension\Quests;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Party;
 use Lemuria\Model\Fantasya\Quantity;
@@ -109,7 +108,9 @@ class DemandPassage extends AbstractController implements Reassignment
 
 	protected function updateStatus(): void {
 		$this->setStatus(Status::Completed);
-		$this->message(QuestFinishedMessage::class, $this->Captain())->e($this->quest());
+		$unit = $this->Captain();
+		$this->removeQuest($unit);
+		$this->message(QuestFinishedMessage::class, $unit)->e($this->quest());
 		Lemuria::Log()->debug($this->unit . ' has been transported to ' . $this->Destination() . '.');
 	}
 
@@ -151,10 +152,7 @@ class DemandPassage extends AbstractController implements Reassignment
 			$this->message(GiveReceivedFromForeignMessage::class, $this->unit)->i($quantity)->e($passenger);
 		}
 		$this->setCaptain($this->unit);
-
-		/** @var Quests $quests */
-		$quests = $this->unit->Extensions()->init(Quests::class);
-		$quests->add($this->quest());
+		$this->assignQuest($this->unit);
 		Lemuria::Log()->debug($passenger . ' has boarded vessel ' . $vessel . ' and paid the passage.');
 		return true;
 	}
