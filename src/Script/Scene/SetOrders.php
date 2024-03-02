@@ -5,6 +5,7 @@ namespace Lemuria\Scenario\Fantasya\Script\Scene;
 use Lemuria\Engine\Fantasya\Command;
 use Lemuria\Engine\Fantasya\Phrase;
 use Lemuria\Engine\Fantasya\State;
+use Lemuria\Lemuria;
 use Lemuria\Scenario\Fantasya\Act;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Macro;
@@ -63,9 +64,16 @@ class SetOrders extends AbstractScene
 
 	public function prepareNext(): ?Section {
 		$this->lines->clear();
-		foreach ($this->orders as $command) {
-			$this->lines->add((string)$command->Phrase());
+		if ($this->id && $this->hasRound()) {
+			foreach ($this->orders as $command) {
+				$this->lines->add((string)$command->Phrase());
+			}
+		} elseif (!empty($this->orders)) {
+			foreach (Lemuria::Orders()->getDefault($this->id) as $command) {
+				$this->lines->add((string)$command);
+			}
 		}
+
 		foreach ($this->chain as $act) {
 			if ($act->getChainResult()) {
 				break;
@@ -78,7 +86,7 @@ class SetOrders extends AbstractScene
 		if (!$this->due || $this->due === Due::Future) {
 			$this->replaceIdArgument();
 		}
-		return $this->section;
+		return $this->section->Lines()->isEmpty() && $this->section->Values()->isEmpty() ? null : $this->section;
 	}
 
 	public function chain(Act $act): static {
