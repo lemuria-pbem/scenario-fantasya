@@ -8,14 +8,14 @@ namespace Lemuria\Scenario\Fantasya\Script\Act;
 class Roundtrip extends Trip
 {
 	protected function startTrip(): bool {
-		$this->addToChain();
 		if ($this->hasReachedDestination()) {
 			$destinations   = $this->macro->getParameters();
 			$first          = array_shift($destinations);
 			$destinations[] = $first;
 			$this->macro->setParameters($destinations);
-			return false;
+			$this->parseDestination($destinations[0]);
 		}
+		$this->addToChain();
 		return true;
 	}
 
