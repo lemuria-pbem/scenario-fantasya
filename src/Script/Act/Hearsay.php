@@ -134,7 +134,7 @@ class Hearsay extends AbstractAct
 	}
 
 	protected function createRumourSections(): void {
-		arsort($this->rumours);
+		krsort($this->rumours);
 		foreach ($this->rumours as $rounds => $rumours) {
 			$section = new Section('Gerücht ' . $this->unit->Id());
 			$section->Values()->offsetSet('Runden', (string)$rounds);
