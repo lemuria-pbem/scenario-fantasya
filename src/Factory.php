@@ -7,6 +7,9 @@ use Lemuria\Engine\Fantasya\Exception\UnknownItemException;
 use Lemuria\Engine\Fantasya\Factory\CommandFactory;
 use Lemuria\Exception\SingletonException;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Building\Cave;
+use Lemuria\Model\Fantasya\Building\Ruin;
+use Lemuria\Model\Fantasya\Building\Shop;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownActException;
 use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
@@ -27,6 +30,7 @@ use Lemuria\Scenario\Fantasya\Script\Scene\Notes;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
 use Lemuria\Scenario\Fantasya\Script\Scene\SpreadRumour;
 use Lemuria\Storage\Ini\Section;
+use function Lemuria\mbUcFirst;
 
 class Factory
 {
@@ -55,6 +59,14 @@ class Factory
 		'Reise'          => Trip::class,
 		'Rundreise'      => Roundtrip::class,
 		'Schiffspassage' => Passage::class
+	];
+
+	protected const array BUILDING = [
+		'Geschäft'  => Shop::class,
+		'Geschaeft' => Shop::class,
+		'Höhle'     => Cave::class,
+		'Hoehle'    => Cave::class,
+		'Ruine'     => Ruin::class
 	];
 
 	private CommandFactory $factory;
@@ -115,6 +127,11 @@ class Factory
 		return $act->parse($macro);
 	}
 
+	public function parseBuilding(string $name): ?string {
+		$candidate = mbUcFirst(mb_strtolower($name));
+		return self::BUILDING[$candidate] ?? null;
+	}
+
 	/**
 	 * @throws UnknownSceneException
 	 */
@@ -133,6 +150,9 @@ class Factory
 	}
 
 	private function tryBuildingCreation(string $name): ?string {
+		if ($this->parseBuilding($name)) {
+			return CreateConstruction::class;
+		}
 		try {
 			$this->factory->building($name);
 			return CreateConstruction::class;

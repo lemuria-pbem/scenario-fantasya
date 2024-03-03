@@ -15,6 +15,7 @@ use Lemuria\Model\Fantasya\Construction;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Region;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
+use Lemuria\Scenario\Fantasya\Factory;
 use Lemuria\Storage\Ini\Section;
 
 class CreateConstruction extends AbstractCreate
@@ -39,7 +40,7 @@ class CreateConstruction extends AbstractCreate
 			$this->class = $building;
 		}
 		$this->size = (int)$this->getOptionalValue('Größe');
-		$this->createBuilding();
+		$this->createThisBuilding();
 		return $this;
 	}
 
@@ -64,12 +65,18 @@ class CreateConstruction extends AbstractCreate
 		return $this;
 	}
 
-	private function createBuilding(): void {
-		$building = $this->factory()->resource($this->class);
+	private function createThisBuilding(): void {
+		$factory = new Factory($this->context());
+		$class   = $factory->parseBuilding($this->class);
+		if ($class) {
+			$building = self::createBuilding($class);
+		} else {
+			$building = $this->factory()->resource($this->class);
+		}
+
 		if ($building::class === AnyBuilding::class) {
 			throw new ParseException('Invalid building given: ' . $this->class);
 		}
-
 		if ($building::class === AnyCastle::class) {
 			$this->building = AbstractCastle::forSize($this->size);
 		} elseif ($building instanceof Castle) {
