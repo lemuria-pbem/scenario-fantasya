@@ -15,6 +15,14 @@ Die Einheit möchte besondere Gegenstände erwerben und macht Besuchern
 entsprechende Angebote. Es können einzelne Gegenstandsarten angegeben werden,
 wenn nicht für alle Gegenstände Angebote gemacht werden sollen.
 
+## Folgen
+
+Syntax: `Folgen([ID, [Dauer]])`
+
+Die Einheit folgt der Spielereinheit für eine bestimmte Anzahl von Runden oder
+bis auf Widerruf. Wenn keine Parameter angegeben sind, folgt die Einheit ab
+sofort nicht mehr.
+
 ## Gerüchte
 
 Syntax: `Gerüchte([Begegnung|Kampf|Markt|Monster|Steuer], …)`

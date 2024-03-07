@@ -16,6 +16,7 @@ use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\Act\Demand;
+use Lemuria\Scenario\Fantasya\Script\Act\Follow;
 use Lemuria\Scenario\Fantasya\Script\Act\Hearsay;
 use Lemuria\Scenario\Fantasya\Script\Act\Market;
 use Lemuria\Scenario\Fantasya\Script\Act\Merchant;
@@ -53,6 +54,7 @@ class Factory
 	 */
 	protected const array ACT = [
 		'Ankauf'         => Demand::class,
+		'Folgen'         => Follow::class,
 		'Gerüchte'       => Hearsay::class,
 		'Händler'        => Merchant::class,
 		'Marktstand'     => Market::class,
