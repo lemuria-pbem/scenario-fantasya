@@ -10,7 +10,6 @@ use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Building\Market as MarketBuilding;
 use Lemuria\Model\Fantasya\Estate;
 use Lemuria\Model\Fantasya\Extension\Trades;
-use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;

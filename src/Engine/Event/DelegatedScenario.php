@@ -27,5 +27,6 @@ final class DelegatedScenario extends DelegatedEvent
 		$this->delegates[] = new FinishMerchants($this->state);
 		$this->delegates[] = new MarketTrade($this->state);
 		$this->delegates[] = new NPC($this->state);
+		$this->delegates[] = new TravelCommands($this->state);
 	}
 }

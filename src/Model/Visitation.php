@@ -18,8 +18,10 @@ use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Scenario\Quest;
 use Lemuria\Model\Fantasya\Unicum;
 use Lemuria\Model\Fantasya\Unit;
+use Lemuria\Scenario\Fantasya\Engine\Event\TravelCommands;
 use Lemuria\Scenario\Fantasya\Factory\BuilderTrait as ScenarioBuilderTrait;
 use Lemuria\Scenario\Fantasya\Quest\Controller\SellUnicum;
+use Lemuria\Scenario\Fantasya\Script\Act\Demand;
 use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 use Lemuria\Scenario\Fantasya\TranslateTrait;
 use Lemuria\SingletonSet;
@@ -91,6 +93,8 @@ class Visitation implements VisitationInterface
 					$message          = $this->translateReplace($message, '$composition', $composition);
 					$this->messages[] = $this->translateReplace($message, '$unicum', $name);
 					Lemuria::Log()->debug($this->unit . ' makes an offer for ' . $composition . ' ' . $unicum->Id() . '.');
+					Demand::getInstance($this->unit)?->waitForAcceptance();
+					TravelCommands::cancelTravelFor($this->unit);
 				} else {
 					Lemuria::Log()->debug($composition . ' ' . $unicum->Id() . ' has no value for us.');
 				}

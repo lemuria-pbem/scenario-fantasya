@@ -6,12 +6,12 @@ use Lemuria\Engine\Fantasya\Command\Travel;
 use Lemuria\Engine\Fantasya\Command\Vacate\Leave;
 use Lemuria\Engine\Fantasya\Factory\DirectionList;
 use Lemuria\Engine\Fantasya\Phrase;
-use Lemuria\Engine\Fantasya\State;
 use Lemuria\Id;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Region;
 use Lemuria\Model\World\PathStrategy;
 use Lemuria\Model\World\Way;
+use Lemuria\Scenario\Fantasya\Engine\Event\TravelCommands;
 
 trait TripTrait
 {
@@ -23,7 +23,7 @@ trait TripTrait
 		$this->setStartFromUnit();
 		if ($this->unit->Construction()) {
 			$leave = new Leave(new Phrase('VERLASSEN'), $this->scene->context());
-			State::getInstance()->injectIntoTurn($leave);
+			TravelCommands::add($leave);
 		}
 	}
 
@@ -34,7 +34,7 @@ trait TripTrait
 		if ($n > 0) {
 			$directions = implode(' ', $list->route());
 			$travel     = new Travel(new Phrase('REISEN ' . $directions), $context);
-			State::getInstance()->injectIntoTurn($travel->preventDefault());
+			TravelCommands::add($travel->preventDefault());
 		}
 		return $n;
 	}
