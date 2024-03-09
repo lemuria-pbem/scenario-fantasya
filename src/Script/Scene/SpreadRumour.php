@@ -9,10 +9,13 @@ use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\IdTrait;
 use Lemuria\Storage\Ini\Section;
+use Lemuria\Storage\Ini\Value;
 
 class SpreadRumour extends AbstractScene
 {
 	use IdTrait;
+
+	private const string ROUNDS = 'Runden';
 
 	/**
 	 * @var array<Command>
@@ -29,6 +32,9 @@ class SpreadRumour extends AbstractScene
 		$this->context()->setUnit($this->parseUnit());
 		foreach ($this->lines as $line) {
 			$this->orders[] = $this->factory()->create(new Phrase('GERÜCHT ' . $line));
+		}
+		if ($this->values->offsetExists(self::ROUNDS)) {
+			$this->rounds = (int)(string)$this->values[self::ROUNDS];
 		}
 		return $this;
 	}
@@ -50,6 +56,9 @@ class SpreadRumour extends AbstractScene
 			return $this->section;
 		}
 
+		if ($this->rounds > 0) {
+			$this->values[self::ROUNDS] = new Value((string)$this->rounds);
+		}
 		if ($this->rounds === null || $this->rounds > 0) {
 			$this->replaceIdArgument();
 			return $this->section;
