@@ -68,6 +68,7 @@ class Visitation implements VisitationInterface
 
 	public function from(Unit $unit): StringList {
 		$this->visitor = $unit;
+		$this->messages->clear();
 		Lemuria::Log()->debug($this->unit . ' is visited by ' . $unit . '.');
 		$this->makeUnicumOffers();
 		return $this->messages;
