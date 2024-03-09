@@ -120,7 +120,7 @@ class Hearsay extends AbstractAct
 	public function collect(): void {
 		$this->initDictionary();
 		$calendar   = Lemuria::Calendar();
-		$this->date = 'in der ' . $calendar->Week() . '. Woche ' . $this->translateKey('calendar.month', $calendar->Month());
+		$this->date = 'in der ' . $calendar->Week() . '. Woche ' . $this->translateKey('calendar.month', $calendar->Month() - 1);
 		foreach ($this->interest as $rumour) {
 			match ($rumour->Myth()) {
 				Myth::Battle    => $this->addBattleRumours($rumour->Incidents()),
