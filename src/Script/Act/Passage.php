@@ -94,7 +94,7 @@ class Passage extends AbstractAct implements Seafarer
 	}
 
 	public function getId(): int {
-		return $this->quest->Unit()->Id()->Id();
+		return $this->quest->Owner()->Id()->Id();
 	}
 
 	public function sailedTo(Region $region): void {
@@ -102,7 +102,7 @@ class Passage extends AbstractAct implements Seafarer
 		$controller = $this->quest->Controller();
 		$controller->setPayload($this->quest);
 		if ($region === $controller->Destination()) {
-			$controller->callFrom($this->quest->Unit());
+			$controller->callFrom($this->quest->Owner());
 		}
 	}
 
@@ -117,7 +117,7 @@ class Passage extends AbstractAct implements Seafarer
 		if (!isset($quest)) {
 			$quest = new Quest();
 			$quest->setId(Lemuria::Catalog()->nextId(Domain::Quest));
-			$quest->setController($controller);
+			$quest->setOwner($this->unit)->setController($controller);
 			$quests->add($quest);
 		}
 		$controller->setPayload($quest)->setDestination($this->destination)->setPayment($this->payment);

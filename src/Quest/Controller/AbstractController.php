@@ -7,6 +7,7 @@ use Lemuria\Engine\Fantasya\Message\Unit\QuestChoiceMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestFinishedMessage;
 use Lemuria\Exception\LemuriaException;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Extension\Quests;
 use Lemuria\Model\Fantasya\Extension\QuestsWithPerson;
 use Lemuria\Model\Fantasya\Party;
 use Lemuria\Model\Fantasya\Scenario\Payload as PayloadModel;
@@ -142,6 +143,14 @@ abstract class AbstractController implements Controller
 		/** @var QuestsWithPerson $quests */
 		$quests = $unit->Party()->Extensions()->init(QuestsWithPerson::class);
 		$quests->add($this->quest(), $unit);
+	}
+
+	protected function deleteQuest(Quest $quest): void {
+		$extensions = $quest->Owner()->Extensions();
+		/** @var Quests $quest */
+		$quests = $extensions[Quests::class];
+		$quests->remove($quest);
+		Lemuria::Catalog()->remove($quest);
 	}
 
 	protected function removeQuest(Unit $unit): void {

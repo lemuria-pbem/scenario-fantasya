@@ -128,7 +128,7 @@ class Visitation implements VisitationInterface
 
 		$quest = new Quest();
 		$quest->setId(Lemuria::Catalog()->nextId(Domain::Quest));
-		$quest->setController($controller);
+		$quest->setOwner($this->unit)->setController($controller);
 		$controller->setPayload($quest)->setUnicum($unicum)->setPayment($payment)->setSeller($unicum->Collector());
 		$quests->add($quest);
 		return $quest;

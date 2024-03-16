@@ -70,7 +70,7 @@ class DemandPassage extends AbstractController implements Reassignment
 			if ($captain && $identifiable === $captain) {
 				$passengers = $captain->Vessel()?->Passengers();
 				if ($passengers) {
-					$me      = $this->quest()->Unit();
+					$me      = $this->quest()->Owner();
 					$captain = null;
 					foreach ($passengers as $unit) {
 						if ($unit !== $me && $unit !== $identifiable) {
@@ -121,7 +121,7 @@ class DemandPassage extends AbstractController implements Reassignment
 			return false;
 		}
 
-		$passenger = $this->quest()->Unit();
+		$passenger = $this->quest()->Owner();
 		if ($passenger->Construction() || $passenger->Vessel()) {
 			Lemuria::Log()->error($passenger . ' is not ready to board.');
 			return false;

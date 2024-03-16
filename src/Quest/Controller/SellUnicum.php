@@ -4,6 +4,7 @@ namespace Lemuria\Scenario\Fantasya\Quest\Controller;
 
 use Lemuria\Id;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Extension\QuestsWithPerson;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Party;
 use Lemuria\Model\Fantasya\Quantity;
@@ -59,14 +60,14 @@ class SellUnicum extends AbstractController
 		$inventory = $this->canBeFulfilled();
 		if ($inventory) {
 			$quest    = $this->quest();
-			$merchant = $quest->Unit();
+			$merchant = $quest->Owner();
 			$unicum   = $this->Unicum();
 			$payment  = $this->Payment();
 			$inventory->remove($payment);
 			$this->unit->Treasury()->remove($unicum);
 			$merchant->Treasury()->add($unicum);
 			$this->unit->Inventory()->add(new Quantity($payment->Commodity(), $payment->Count()));
-			$this->removeQuest($this->unit);
+			$this->deleteQuest($quest);
 			$this->setStatus(Status::Completed);
 			Lemuria::Log()->debug('Unicum ' . $unicum->Id() . ' sold from ' . $this->unit . ' to ' . $merchant . ' for ' . $payment . '.');
 		}
@@ -82,7 +83,7 @@ class SellUnicum extends AbstractController
 
 	private function canBeFulfilled(): ?Resources {
 		if ($this->unit->Treasury()->has($this->Unicum()->Id())) {
-			$inventory = $this->quest()->Unit()->Inventory();
+			$inventory = $this->quest()->Owner()->Inventory();
 			$payment   = $this->Payment();
 			$available = $inventory->offsetGet($payment->Commodity());
 			return $available->Count() >= $payment->Count() ? $inventory : null;
