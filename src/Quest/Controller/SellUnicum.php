@@ -2,9 +2,11 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Quest\Controller;
 
+use Lemuria\Engine\Fantasya\Factory\MessageTrait;
+use Lemuria\Engine\Fantasya\Message\Unit\TakeDemandMessage;
+use Lemuria\Engine\Fantasya\Message\Unit\TakeOfferPaymentMessage;
 use Lemuria\Id;
 use Lemuria\Lemuria;
-use Lemuria\Model\Fantasya\Extension\QuestsWithPerson;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Party;
 use Lemuria\Model\Fantasya\Quantity;
@@ -17,6 +19,7 @@ use Lemuria\Scenario\Fantasya\Quest\Status;
 class SellUnicum extends AbstractController
 {
 	use BuilderTrait;
+	use MessageTrait;
 
 	protected const int TTL = 1;
 
@@ -69,6 +72,7 @@ class SellUnicum extends AbstractController
 			$this->unit->Inventory()->add(new Quantity($payment->Commodity(), $payment->Count()));
 			$this->deleteQuest($quest);
 			$this->setStatus(Status::Completed);
+			$this->message(TakeDemandMessage::class, $merchant)->e($unicum)->e($this->unit, TakeOfferPaymentMessage::UNIT)->i($payment);
 			Lemuria::Log()->debug('Unicum ' . $unicum->Id() . ' sold from ' . $this->unit . ' to ' . $merchant . ' for ' . $payment . '.');
 		}
 	}
