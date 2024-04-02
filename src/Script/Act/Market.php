@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
+use Lemuria\Engine\Fantasya\Command\Alternative;
 use Lemuria\Engine\Fantasya\Command\Trespass\Enter;
 use Lemuria\Engine\Fantasya\Command\Vacate\Leave;
 use Lemuria\Engine\Fantasya\Phrase;
@@ -10,6 +11,7 @@ use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Building\Market as MarketBuilding;
 use Lemuria\Model\Fantasya\Estate;
 use Lemuria\Model\Fantasya\Extension\Trades;
+use Lemuria\Scenario\Fantasya\Engine\Event\TravelCommands;
 use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
@@ -46,16 +48,17 @@ class Market extends AbstractAct
 
 	public function play(): static {
 		parent::play();
+		$context = $this->scene->context();
+		$unit    = $context->Unit();
 		if ($this->isInMarket()) {
 			if (!$this->getChainResult()) {
-				$leave = new Leave(new Phrase('VERLASSEN'), $this->scene->context());
+				$leave = new Leave(new Phrase('VERLASSEN'), $context);
 				State::getInstance()->injectIntoTurn($leave);
 			} else {
 				$this->addVisitationEffect();
+				TravelCommands::cancelTravelFor($unit);
 			}
 		} else {
-			$context = $this->scene->context();
-			$unit    = $context->Unit();
 			$region  = $unit->Region();
 			$markets = new Estate();
 			foreach ($region->Estate() as $construction) {
@@ -65,15 +68,19 @@ class Market extends AbstractAct
 			}
 
 			if (!$markets->isEmpty()) {
+				$state  = State::getInstance();
 				$market = $markets->random();
 				$enter  = new Enter(new Phrase('BETRETEN ' . $market->Id()), $context);
-				State::getInstance()->injectIntoTurn($enter);
+				$state->injectIntoTurn($enter);
 				Lemuria::Log()->debug('Market act: ' . $unit . ' will enter market ' . $market . '.');
 				if ($markets->count() > 1) {
 					// TODO: Enter logic could be improved to consider all markets.
 					Lemuria::Log()->debug('Market act in ' . $region . ' chose the first market, there are more.');
 				}
+				$learn = new Alternative(new Phrase('ALTERNATIVE LERNEN Handeln'), $context);
+				$state->injectIntoTurn($learn);
 				$this->addVisitationEffect();
+				TravelCommands::cancelTravelFor($unit);
 			}
 		}
 

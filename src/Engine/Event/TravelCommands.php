@@ -41,6 +41,7 @@ final class TravelCommands extends AbstractEvent
 		if (isset(self::$enforce[$id])) {
 			Lemuria::Log()->debug('The trip of ' . $unit . ' cannot be cancelled.');
 		} else {
+			self::$enforce[$id] = false;
 			unset(self::$commands[$id]);
 			Lemuria::Log()->debug('The trip of ' . $unit . ' has been cancelled.');
 		}
@@ -58,9 +59,13 @@ final class TravelCommands extends AbstractEvent
 	protected function run(): void {
 		foreach (self::$commands as $id => $commands) {
 			$unit = Unit::get(new Id($id));
-			Lemuria::Log()->debug('The trip of ' . $unit . ' has been confirmed.');
-			foreach ($commands as $command) {
-				$this->state->injectIntoTurn($command);
+			if (array_key_exists($id, self::$enforce) && !self::$enforce[$id]) {
+				Lemuria::Log()->debug('The trip of ' . $unit . ' has been cancelled.');
+			} else {
+				Lemuria::Log()->debug('The trip of ' . $unit . ' has been confirmed.');
+				foreach ($commands as $command) {
+					$this->state->injectIntoTurn($command);
+				}
 			}
 		}
 	}
