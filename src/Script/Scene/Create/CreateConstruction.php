@@ -2,6 +2,8 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Scene\Create;
 
+use Lemuria\Engine\Fantasya\Context;
+use Lemuria\Engine\Fantasya\Factory\ConstructionTrait;
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Engine\Fantasya\Factory\Model\AnyBuilding;
 use Lemuria\Engine\Fantasya\Factory\Model\AnyCastle;
@@ -16,12 +18,16 @@ use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Region;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Factory;
+use Lemuria\Scenario\Fantasya\Script;
 use Lemuria\Storage\Ini\Section;
 
 class CreateConstruction extends AbstractCreate
 {
 	use BuilderTrait;
+	use ConstructionTrait;
 	use MessageTrait;
+
+	private Context $context;
 
 	private ?string $class;
 
@@ -30,6 +36,11 @@ class CreateConstruction extends AbstractCreate
 	private int $size;
 
 	private ?Region $region = null;
+
+	public function __construct(Factory $scenarioFactory, Script $script) {
+		parent::__construct($scenarioFactory, $script);
+		$this->context = $this->context();
+	}
 
 	public function parse(Section $section): static {
 		parent::parse($section);
@@ -56,6 +67,10 @@ class CreateConstruction extends AbstractCreate
 			$construction->setDescription($this->description);
 		}
 		$construction->setSize($this->size > 0 ? $this->size : 1);
+
+		$this->initializeMarket($construction);
+		$this->addConstructionExtensions($construction);
+		$this->addConstructionEffects($construction);
 
 		if ($this->id) {
 			$this->mapper()->map($construction, $this->id);
