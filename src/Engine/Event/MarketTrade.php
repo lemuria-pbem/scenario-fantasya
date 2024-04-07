@@ -7,6 +7,7 @@ use Lemuria\Engine\Fantasya\Event\AbstractEvent;
 use Lemuria\Engine\Fantasya\Priority;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Extension\Trades;
 use Lemuria\Scenario\Fantasya\Script\Act\Market;
 
 /**
@@ -31,9 +32,8 @@ final class MarketTrade extends AbstractEvent
 		$effect = new TradeEffect(State::getInstance());
 		foreach (self::$acts as $market) {
 			$existing = Lemuria::Score()->find($effect->setUnit($market->Unit()));
-			if ($existing instanceof TradeEffect) {
-				$market->setTrades($existing->Trades());
-			}
+			$trades   = $existing instanceof TradeEffect ? $existing->Trades() : new Trades();
+			$market->setTrades($trades);
 		}
 	}
 }

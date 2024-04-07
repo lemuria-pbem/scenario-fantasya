@@ -52,7 +52,6 @@ class Trip extends AbstractAct
 
 		$path = $this->findWay(ShortestPath::class);
 		if ($path->isViable()) {
-			$this->leaveConstruction();
 			$this->travel($path->getBest());
 		} else {
 			Lemuria::Log()->error('There is no viable path from ' . $this->start . ' to ' . $this->destination . '.');

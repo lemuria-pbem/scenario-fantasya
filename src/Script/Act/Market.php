@@ -11,6 +11,7 @@ use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Building\Market as MarketBuilding;
 use Lemuria\Model\Fantasya\Estate;
 use Lemuria\Model\Fantasya\Extension\Trades;
+use Lemuria\Scenario\Fantasya\Engine\Event\MarketTrade;
 use Lemuria\Scenario\Fantasya\Engine\Event\TravelCommands;
 use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
@@ -51,6 +52,7 @@ class Market extends AbstractAct
 		$context = $this->scene->context();
 		$unit    = $context->Unit();
 		if ($this->isInMarket()) {
+			MarketTrade::register($this);
 			if (!$this->getChainResult()) {
 				$leave = new Leave(new Phrase('VERLASSEN'), $context);
 				State::getInstance()->injectIntoTurn($leave);
@@ -81,6 +83,7 @@ class Market extends AbstractAct
 				$state->injectIntoTurn($learn);
 				$this->addVisitationEffect();
 				TravelCommands::cancelTravelFor($unit);
+				$this->lastTrade = 0;
 			}
 		}
 
