@@ -199,6 +199,7 @@ class Hearsay extends AbstractAct
 
 	/**
 	 * @param \ArrayObject<array<Construction>> $constructionsWithFee
+	 * @noinspection PhpMissingBreakStatementInspection
 	 */
 	private function addFeeRumours(\ArrayObject $constructionsWithFee): void {
 		foreach ($constructionsWithFee as $constructions) {
