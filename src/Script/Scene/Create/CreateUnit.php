@@ -50,7 +50,8 @@ class CreateUnit extends AbstractCreate
 		$this->name        = $this->getOptionalValue('Name');
 		$this->description = $this->getOptionalValue('Beschreibung');
 		$this->race        = $this->factory()->parseRace($this->getValue('Rasse'));
-		$this->size        = (int)$this->getOptionalValue('Größe');
+		$size              = $this->getOptionalValue('Größe');
+		$this->size        = is_string($size) ? (int)$size : 1;
 		$this->knowledge   = new Knowledge();
 		$this->inventory   = new Resources();
 		$this->spellBook   = new SpellBook();
@@ -103,7 +104,7 @@ class CreateUnit extends AbstractCreate
 			$unit->setDescription($this->description);
 		}
 		$unit->setRace($this->race);
-		$unit->setSize($this->size > 0 ? $this->size : 1);
+		$unit->setSize($this->size);
 		$unit->Knowledge()->fill($this->knowledge);
 		$unit->Inventory()->fill($this->inventory);
 
