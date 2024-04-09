@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
+use Lemuria\Scenario\Fantasya\Script\Scene\SpreadRumour;
 use function Lemuria\getClass;
 use Lemuria\Engine\Fantasya\Combat\Battle;
 use Lemuria\Engine\Fantasya\Combat\BattleLog;
@@ -27,6 +28,7 @@ use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Model\GoodKinds;
 use Lemuria\Scenario\Fantasya\Model\Myth;
 use Lemuria\Scenario\Fantasya\Model\Rumour;
+use Lemuria\Scenario\Fantasya\Model\Statement;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\TranslateTrait;
@@ -52,7 +54,7 @@ class Hearsay extends AbstractAct
 	private array $interest = [];
 
 	/**
-	 * @var array<int, array<string>>
+	 * @var array<int, array<Statement>>
 	 */
 	private array $rumours = [];
 
@@ -134,14 +136,32 @@ class Hearsay extends AbstractAct
 	}
 
 	protected function createRumourSections(): void {
+		$keys = [];
 		krsort($this->rumours);
 		foreach ($this->rumours as $rounds => $rumours) {
-			$section = new Section('Gerücht ' . $this->unit->Id());
-			$section->Values()->offsetSet('Runden', (string)$rounds);
 			foreach ($rumours as $rumour) {
-				$section->Lines()->add($rumour);
+				/** @var Statement $rumour */
+				$section = new Section('Gerücht ' . $this->unit->Id());
+				$section->Values()->offsetSet('Runden', (string)$rounds);
+				if ($rumour->hasKey()) {
+					$key = $rumour->Key();
+					$section->Values()->offsetSet('Schlüssel', $key);
+					$keys[$key] = true;
+				}
+				$section->Lines()->add($rumour->Rumour());
+				$this->scene->Script()->add($section);
 			}
-			$this->scene->Script()->add($section);
+		}
+
+		foreach ($this->scene->Script() as $scene) {
+			if ($scene instanceof SpreadRumour) {
+				if ($scene->Id()->Id() === $this->unit->Id()->Id()) {
+					$key = $scene->Key();
+					if ($key && isset($keys[$key])) {
+						$scene->replace();
+					}
+				}
+			}
 		}
 	}
 
@@ -175,7 +195,8 @@ class Hearsay extends AbstractAct
 
 			$rumour              = $this->translateReplace($rumour, '$date', $this->date);
 			$rumour              = $this->translateReplace($rumour, '$region', $battle->Place()->Region()->Name());
-			$this->rumours[$r][] = $rumour;
+			$statement           = new Statement($rumour);
+			$this->rumours[$r][] = $statement;
 		}
 	}
 
@@ -193,7 +214,8 @@ class Hearsay extends AbstractAct
 			$rumour              = $this->translateReplace($rumour, '$name', $unit->Name());
 			$rumour              = $this->translateReplace($rumour, '$pronoun', $this->pronoun($unit));
 			$rumour              = $this->translateReplace($rumour, '$region', $unit->Region()->Name());
-			$this->rumours[$r][] = $rumour;
+			$statement           = new Statement($rumour);
+			$this->rumours[$r][] = $statement;
 		}
 	}
 
@@ -259,11 +281,13 @@ class Hearsay extends AbstractAct
 
 		$r = self::ROUNDS[Myth::Monster->name];
 		foreach ($races as $race => $size) {
+			$region              = $this->unit->Region()->Name();
 			$rumour              = $this->dictionary->random('hearsay.monster', $size > 1 ? 1 : 0);
 			$rumour              = $this->translateReplace($rumour, '$date', $this->date);
 			$rumour              = $this->translateReplace($rumour, '$monster', self::createMonster($race));
-			$rumour              = $this->translateReplace($rumour, '$region', $this->unit->Region()->Name());
-			$this->rumours[$r][] = $rumour;
+			$rumour              = $this->translateReplace($rumour, '$region', $region);
+			$statement           = new Statement($rumour);
+			$this->rumours[$r][] = $statement->setKey($race . '-' . $region);
 		}
 	}
 
@@ -279,9 +303,12 @@ class Hearsay extends AbstractAct
 		} else {
 			$rumour = $this->dictionary->get('hearsay.fee.free', $building);
 		}
-		$rumour              = $this->translateReplace($rumour, '$name', $construction->Name());
-		$rumour              = $this->translateReplace($rumour, '$region', $construction->Region()->Name());
-		$this->rumours[$r][] = $rumour;
+		$name                = $construction->Name();
+		$region              = $construction->Region()->Name();
+		$rumour              = $this->translateReplace($rumour, '$name', $name);
+		$rumour              = $this->translateReplace($rumour, '$region', $region);
+		$statement           = new Statement($rumour);
+		$this->rumours[$r][] = $statement->setKey('fee-' . $name . '-' . $region);
 	}
 
 	private function addDutyRumour(Construction $construction, float $duty): void {
@@ -293,9 +320,12 @@ class Hearsay extends AbstractAct
 		} else {
 			$rumour = $this->dictionary->get('hearsay.duty.free', $building);
 		}
-		$rumour              = $this->translateReplace($rumour, '$name', $construction->Name());
-		$rumour              = $this->translateReplace($rumour, '$region', $construction->Region()->Name());
-		$this->rumours[$r][] = $rumour;
+		$name                = $construction->Name();
+		$region              = $construction->Region()->Name();
+		$rumour              = $this->translateReplace($rumour, '$name', $name);
+		$rumour              = $this->translateReplace($rumour, '$region', $region);
+		$statement           = new Statement($rumour);
+		$this->rumours[$r][] = $statement->setKey('duty-' . $name . '-' . $region);
 	}
 
 	/**
@@ -305,7 +335,7 @@ class Hearsay extends AbstractAct
 		$kinds = new GoodKinds();
 		$sales = new Sales($construction);
 		foreach ($construction->Inhabitants() as $unit) {
-			if ($unit !== $this->unit) {
+			if ($unit->Party()->Type() === Type::Player) {
 				if ($unit->Extensions()->offsetExists(Trades::class)) {
 					/** @var Trades $trades */
 					$trades = $unit->Extensions()->offsetGet(Trades::class);
@@ -343,9 +373,12 @@ class Hearsay extends AbstractAct
 				$rumour = $this->translateReplace($rumour, '$demand', $this->combineKinds($demand));
 			}
 		}
-		$rumour = $this->translateReplace($rumour, '$name', $market->Name());
-		$rumour = $this->translateReplace($rumour, '$region', $market->Region()->Name());
-		$this->rumours[$r][] = $rumour;
+		$name                = $market->Name();
+		$region              = $market->Region()->Name();
+		$rumour              = $this->translateReplace($rumour, '$name', $name);
+		$rumour              = $this->translateReplace($rumour, '$region', $region);
+		$statement           = new Statement($rumour);
+		$this->rumours[$r][] = $statement->setKey('goods-' . $name . '-' . $region);
 	}
 
 	/**

@@ -3,6 +3,7 @@ declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
 use Lemuria\Engine\Fantasya\Context;
+use Lemuria\IteratorTrait;
 use Lemuria\Lemuria;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Exception\ScriptException;
@@ -10,8 +11,10 @@ use Lemuria\Scenario\Fantasya\Exception\UnknownSceneException;
 use Lemuria\Storage\Ini\Section;
 use Lemuria\Storage\Ini\SectionList;
 
-class Script
+class Script implements \Iterator
 {
+	use IteratorTrait;
+
 	protected static Context $context;
 
 	protected static Factory $factory;
@@ -32,6 +35,10 @@ class Script
 	}
 
 	public function __construct(private readonly string $file, private SectionList $data) {
+	}
+
+	public function current(): Scene {
+		return $this->scenes[$this->index];
 	}
 
 	public function File(): string {
@@ -55,6 +62,7 @@ class Script
 				if ($scene->isDue()) {
 					$scene->play();
 					$this->scenes[] = $scene;
+					$this->count++;
 				} else {
 					Lemuria::Log()->debug('Scene of section ' . $section->Name() . ' is not scheduled to play this round.');
 				}

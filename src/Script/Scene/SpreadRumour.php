@@ -5,6 +5,7 @@ namespace Lemuria\Scenario\Fantasya\Script\Scene;
 use Lemuria\Engine\Fantasya\Command;
 use Lemuria\Engine\Fantasya\Phrase;
 use Lemuria\Engine\Fantasya\State;
+use Lemuria\Id;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\IdTrait;
@@ -17,12 +18,24 @@ class SpreadRumour extends AbstractScene
 
 	private const string ROUNDS = 'Runden';
 
+	private const string KEY = 'Schlüssel';
+
 	/**
 	 * @var array<Command>
 	 */
 	protected array $orders = [];
 
 	protected ?int $rounds = null;
+
+	protected string $key = '';
+
+	public function Id(): Id {
+		return $this->id;
+	}
+
+	public function Key(): string {
+		return $this->key;
+	}
 
 	/**
 	 * @throws ParseException
@@ -35,6 +48,9 @@ class SpreadRumour extends AbstractScene
 		}
 		if ($this->values->offsetExists(self::ROUNDS)) {
 			$this->rounds = (int)(string)$this->values[self::ROUNDS];
+		}
+		if ($this->values->offsetExists(self::KEY)) {
+			$this->key = (string)$this->values[self::KEY];
 		}
 		return $this;
 	}
@@ -63,6 +79,14 @@ class SpreadRumour extends AbstractScene
 			$this->replaceIdArgument();
 			return $this->section;
 		}
+		if ($this->key) {
+			$this->values[self::KEY] = new Value($this->key);
+		}
 		return null;
+	}
+
+	public function replace(): static {
+		$this->rounds = 0;
+		return $this;
 	}
 }
