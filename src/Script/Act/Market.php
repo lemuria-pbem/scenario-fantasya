@@ -5,12 +5,20 @@ namespace Lemuria\Scenario\Fantasya\Script\Act;
 use Lemuria\Engine\Fantasya\Command\Alternative;
 use Lemuria\Engine\Fantasya\Command\Trespass\Enter;
 use Lemuria\Engine\Fantasya\Command\Vacate\Leave;
+use Lemuria\Engine\Fantasya\Factory\MessageTrait;
+use Lemuria\Engine\Fantasya\Factory\SiegeTrait;
+use Lemuria\Engine\Fantasya\Message\Construction\EnterNoSpaceMessage;
+use Lemuria\Engine\Fantasya\Message\Construction\EnterNotAllowedMessage;
+use Lemuria\Engine\Fantasya\Message\Unit\EnterDeniedMessage;
+use Lemuria\Engine\Fantasya\Message\Unit\EnterSiegeMessage;
+use Lemuria\Engine\Fantasya\Message\Unit\EnterTooLargeMessage;
 use Lemuria\Engine\Fantasya\Phrase;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Building\Market as MarketBuilding;
 use Lemuria\Model\Fantasya\Estate;
 use Lemuria\Model\Fantasya\Extension\Trades;
+use Lemuria\Model\Fantasya\Relation;
 use Lemuria\Scenario\Fantasya\Engine\Event\MarketTrade;
 use Lemuria\Scenario\Fantasya\Engine\Event\TravelCommands;
 use Lemuria\Scenario\Fantasya\Macro;
@@ -24,6 +32,8 @@ use Lemuria\Storage\Ini\Values;
  */
 class Market extends AbstractAct
 {
+	use MessageTrait;
+	use SiegeTrait;
 	use VisitationTrait;
 
 	private const string LAST_TRADE = 'LetzterHandel';
@@ -64,8 +74,25 @@ class Market extends AbstractAct
 			$region  = $unit->Region();
 			$markets = new Estate();
 			foreach ($region->Estate() as $construction) {
-				if ($construction->Building() instanceof MarketBuilding) {
-					$markets->add($construction);
+				$building = $construction->Building();
+				if ($building instanceof MarketBuilding) {
+					$this->initSiege($construction);
+					if ($construction->getFreeSpace() >= $unit->Size()) {
+						if ($this->canEnterOrLeave($unit)) {
+							$inhabitants = $construction->Inhabitants();
+							if ($this->hasPermission($inhabitants) || $this->hasPermission($inhabitants, Relation::MARKET)) {
+								$markets->add($construction);
+							} else {
+								$this->message(EnterDeniedMessage::class, $unit)->e($construction);
+								$this->message(EnterNotAllowedMessage::class, $construction)->p($unit->Name())->s($building);
+							}
+						} else {
+							$this->message(EnterSiegeMessage::class, $unit)->e($construction);
+						}
+					} else {
+						$this->message(EnterTooLargeMessage::class, $unit)->e($construction);
+						$this->message(EnterNoSpaceMessage::class, $construction)->p($unit->Name())->s($building);
+					}
 				}
 			}
 

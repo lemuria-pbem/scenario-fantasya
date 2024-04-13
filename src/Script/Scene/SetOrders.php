@@ -70,7 +70,7 @@ class SetOrders extends AbstractScene
 			}
 		} elseif (!empty($this->orders)) {
 			foreach (Lemuria::Orders()->getDefault($this->id) as $command) {
-				$this->lines->add((string)$command);
+				$this->lines->add($command);
 			}
 		}
 
