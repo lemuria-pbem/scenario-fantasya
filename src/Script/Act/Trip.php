@@ -4,6 +4,7 @@ namespace Lemuria\Scenario\Fantasya\Script\Act;
 
 use Lemuria\Lemuria;
 use Lemuria\Model\World\Strategy\ShortestPath;
+use Lemuria\Scenario\Fantasya\Engine\Event\EnterMarkets;
 use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\TripTrait;
@@ -52,7 +53,9 @@ class Trip extends AbstractAct
 
 		$path = $this->findWay(ShortestPath::class);
 		if ($path->isViable()) {
-			$this->travel($path->getBest());
+			if ($this->travel($path->getBest()) > 0) {
+				EnterMarkets::register($this);
+			}
 		} else {
 			Lemuria::Log()->error('There is no viable path from ' . $this->start . ' to ' . $this->destination . '.');
 		}
