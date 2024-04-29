@@ -128,10 +128,13 @@ Ein oder mehrere gesammelte Gerüchte werden in dieser Sektion angegeben.
 
 Optionale Schlüssel:
 
+    Partei = p
+    Region = r
     Runden = 3
 
 Wenn eine Rundenanzahl angegeben ist, wird diese heruntergezählt und das Gerücht
-beim Ablauf des Countdowns gelöscht.
+beim Ablauf des Countdowns gelöscht. Eine angegebene Partei wird als Ursprung
+und eine angegebene Region als Lokalität in das Gerücht übernommen.
 
 ## Notizen
 

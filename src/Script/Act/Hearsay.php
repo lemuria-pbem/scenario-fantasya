@@ -2,7 +2,6 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
-use Lemuria\Scenario\Fantasya\Script\Scene\SpreadRumour;
 use function Lemuria\getClass;
 use Lemuria\Engine\Fantasya\Combat\Battle;
 use Lemuria\Engine\Fantasya\Combat\BattleLog;
@@ -31,6 +30,7 @@ use Lemuria\Scenario\Fantasya\Model\Rumour;
 use Lemuria\Scenario\Fantasya\Model\Statement;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
+use Lemuria\Scenario\Fantasya\Script\Scene\SpreadRumour;
 use Lemuria\Scenario\Fantasya\TranslateTrait;
 use Lemuria\Storage\Ini\Section;
 
@@ -142,10 +142,17 @@ class Hearsay extends AbstractAct
 			foreach ($rumours as $rumour) {
 				/** @var Statement $rumour */
 				$section = new Section('Gerücht ' . $this->unit->Id());
-				$section->Values()->offsetSet('Runden', (string)$rounds);
+				$values  = $section->Values();
+				$values->offsetSet('Runden', (string)$rounds);
+				if ($rumour->hasParty()) {
+					$values->offsetSet('Partei', $rumour->Party());
+				}
+				if ($rumour->hasRegion()) {
+					$values->offsetSet('Region', $rumour->Region());
+				}
 				if ($rumour->hasKey()) {
 					$key = $rumour->Key();
-					$section->Values()->offsetSet('Schlüssel', $key);
+					$values->offsetSet('Schlüssel', $key);
 					$keys[$key] = true;
 				}
 				$section->Lines()->add($rumour->Rumour());
@@ -303,12 +310,14 @@ class Hearsay extends AbstractAct
 		} else {
 			$rumour = $this->dictionary->get('hearsay.fee.free', $building);
 		}
+		$party               = (string)$construction->Inhabitants()->Owner()?->Id();
+		$location            = (string)$construction->Region()->Id();
 		$name                = $construction->Name();
 		$region              = $construction->Region()->Name();
 		$rumour              = $this->translateReplace($rumour, '$name', $name);
 		$rumour              = $this->translateReplace($rumour, '$region', $region);
 		$statement           = new Statement($rumour);
-		$this->rumours[$r][] = $statement->setKey('fee-' . $name . '-' . $region);
+		$this->rumours[$r][] = $statement->setParty($party)->setRegion($location)->setKey('fee-' . $name . '-' . $region);
 	}
 
 	private function addDutyRumour(Construction $construction, float $duty): void {
@@ -320,12 +329,14 @@ class Hearsay extends AbstractAct
 		} else {
 			$rumour = $this->dictionary->get('hearsay.duty.free', $building);
 		}
+		$party               = (string)$construction->Inhabitants()->Owner()?->Id();
+		$location            = (string)$construction->Region()->Id();
 		$name                = $construction->Name();
 		$region              = $construction->Region()->Name();
 		$rumour              = $this->translateReplace($rumour, '$name', $name);
 		$rumour              = $this->translateReplace($rumour, '$region', $region);
 		$statement           = new Statement($rumour);
-		$this->rumours[$r][] = $statement->setKey('duty-' . $name . '-' . $region);
+		$this->rumours[$r][] = $statement->setParty($party)->setRegion($location)->setKey('duty-' . $name . '-' . $region);
 	}
 
 	/**
@@ -373,12 +384,14 @@ class Hearsay extends AbstractAct
 				$rumour = $this->translateReplace($rumour, '$demand', $this->combineKinds($demand));
 			}
 		}
+		$party               = (string)$market->Inhabitants()->Owner()?->Id();
+		$location            = (string)$market->Region()->Id();
 		$name                = $market->Name();
 		$region              = $market->Region()->Name();
 		$rumour              = $this->translateReplace($rumour, '$name', $name);
 		$rumour              = $this->translateReplace($rumour, '$region', $region);
 		$statement           = new Statement($rumour);
-		$this->rumours[$r][] = $statement->setKey('goods-' . $name . '-' . $region);
+		$this->rumours[$r][] = $statement->setParty($party)->setRegion($location)->setKey('goods-' . $name . '-' . $region);
 	}
 
 	/**

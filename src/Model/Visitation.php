@@ -3,6 +3,8 @@ declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Model;
 
 use Lemuria\Engine\Fantasya\Effect\WelcomeVisitor;
+use Lemuria\Engine\Fantasya\Factory\Model\Buzz;
+use Lemuria\Engine\Fantasya\Factory\Model\Buzzes;
 use Lemuria\Engine\Fantasya\Factory\Scenario\Visitation as VisitationInterface;
 use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
@@ -25,7 +27,6 @@ use Lemuria\Scenario\Fantasya\Script\Act\Demand;
 use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 use Lemuria\Scenario\Fantasya\TranslateTrait;
 use Lemuria\SingletonSet;
-use Lemuria\StringList;
 
 class Visitation implements VisitationInterface
 {
@@ -38,7 +39,7 @@ class Visitation implements VisitationInterface
 
 	protected SingletonSet $demand;
 
-	protected StringList $messages;
+	protected Buzzes $messages;
 
 	/** @var array<int, self> */
 	private static array $visitation = [];
@@ -57,7 +58,7 @@ class Visitation implements VisitationInterface
 
 	protected function __construct(protected readonly Unit $unit) {
 		$this->demand   = new SingletonSet();
-		$this->messages = new StringList();
+		$this->messages = new Buzzes();
 		if (!self::$silver) {
 			self::$silver = self::createCommodity(Silver::class);
 		}
@@ -68,7 +69,7 @@ class Visitation implements VisitationInterface
 		return $this->demand;
 	}
 
-	public function from(Unit $unit): StringList {
+	public function from(Unit $unit): Buzzes {
 		$this->visitor = $unit;
 		$this->messages->clear();
 		Lemuria::Log()->debug($this->unit . ' is visited by ' . $unit . '.');
@@ -88,10 +89,10 @@ class Visitation implements VisitationInterface
 				if ($payment->Count() > 0) {
 					$quest = $this->createSellUnicumQuest($unicum, $payment);
 					$this->offerQuestTo($quest, $this->visitor);
-					$message          = $this->dictionary->get('demand.unicum');
-					$message          = $this->replaceItem($message, '$payment', $payment);
-					$message          = $this->translateReplace($message, '$composition', $composition);
-					$this->messages[] = $this->translateReplace($message, '$unicum', $name);
+					$message = $this->dictionary->get('demand.unicum');
+					$message = $this->replaceItem($message, '$payment', $payment);
+					$message = $this->translateReplace($message, '$composition', $composition);
+					$this->messages->add(new Buzz($this->translateReplace($message, '$unicum', $name)));
 					Lemuria::Log()->debug($this->unit . ' makes an offer for ' . $composition . ' ' . $unicum->Id() . '.');
 					Demand::getInstance($this->unit)?->waitForAcceptance();
 					TravelCommands::cancelTravelFor($this->unit);
