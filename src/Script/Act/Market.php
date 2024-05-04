@@ -66,6 +66,7 @@ class Market extends AbstractAct
 	}
 
 	public function play(): static {
+		//TODO: Remove unused code parts.
 		parent::play();
 		$context = $this->scene->context();
 		$unit    = $context->Unit();
@@ -74,9 +75,11 @@ class Market extends AbstractAct
 			if (!$this->getChainResult()) {
 				$leave = new Leave(new Phrase('VERLASSEN'), $context);
 				State::getInstance()->injectIntoTurn($leave);
+				EnterMarkets::register($this);
 			} else {
 				$this->addVisitationEffect();
 				TravelCommands::cancelTravelFor($unit);
+				EnterMarkets::register($this);
 			}
 		} else {
 			$region  = $unit->Region();
