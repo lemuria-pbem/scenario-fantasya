@@ -310,7 +310,7 @@ class Hearsay extends AbstractAct
 		} else {
 			$rumour = $this->dictionary->get('hearsay.fee.free', $building);
 		}
-		$party               = (string)$construction->Inhabitants()->Owner()?->Id();
+		$party               = (string)$construction->Inhabitants()->Owner()?->Party()->Id();
 		$location            = (string)$construction->Region()->Id();
 		$name                = $construction->Name();
 		$region              = $construction->Region()->Name();
@@ -329,7 +329,7 @@ class Hearsay extends AbstractAct
 		} else {
 			$rumour = $this->dictionary->get('hearsay.duty.free', $building);
 		}
-		$party               = (string)$construction->Inhabitants()->Owner()?->Id();
+		$party               = (string)$construction->Inhabitants()->Owner()?->Party()->Id();
 		$location            = (string)$construction->Region()->Id();
 		$name                = $construction->Name();
 		$region              = $construction->Region()->Name();
@@ -384,7 +384,7 @@ class Hearsay extends AbstractAct
 				$rumour = $this->translateReplace($rumour, '$demand', $this->combineKinds($demand));
 			}
 		}
-		$party               = (string)$market->Inhabitants()->Owner()?->Id();
+		$party               = (string)$market->Inhabitants()->Owner()?->Party()->Id();
 		$location            = (string)$market->Region()->Id();
 		$name                = $market->Name();
 		$region              = $market->Region()->Name();
