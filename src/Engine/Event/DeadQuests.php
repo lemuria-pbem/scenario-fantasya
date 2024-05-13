@@ -6,6 +6,7 @@ use Lemuria\Engine\Fantasya\Event\AbstractEvent;
 use Lemuria\Engine\Fantasya\Priority;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Extension\Quests;
 use Lemuria\Model\Fantasya\Scenario\Quest;
 use Lemuria\Scenario\Fantasya\Quest\Payload;
 use Lemuria\Scenario\Fantasya\Quest\Status;
@@ -29,6 +30,10 @@ final class DeadQuests extends AbstractEvent
 			$ttl = $payload->ttl();
 			if ($payload->ttl() !== Payload::IMMORTAL) {
 				if ($ttl <= 0) {
+					$extensions = $quest->Owner()->Extensions();
+					/** @var Quests $quests */
+					$quests = $extensions[Quests::class];
+					$quests->remove($quest);
 					Lemuria::Catalog()->remove($quest);
 					Lemuria::Log()->debug('Quest ' . $quest . ' has been removed.');
 				} else {
