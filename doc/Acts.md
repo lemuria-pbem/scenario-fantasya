@@ -37,6 +37,13 @@ Syntax: `Händler()`
 Wenn sich die Einheit nicht in einem Gebäude aufhält, bietet sie ihre Waren
 allen Parteien an, deren Einheiten sich in der Region aufhalten.
 
+## Lehrer
+
+Syntax: `Lehrer([Talent], …)`
+
+Die Einheit bietet ihre Dienste als Lehrer für die angegebenen Talente an. Ohne
+Angabe eines Talents werden alle erlernten Talente angeboten.
+
 ## Marktstand
 
 Syntax: `Marktstand(n)`

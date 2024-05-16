@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya;
 
+use function Lemuria\mbUcFirst;
 use Lemuria\Engine\Fantasya\Context;
 use Lemuria\Engine\Fantasya\Exception\UnknownItemException;
 use Lemuria\Engine\Fantasya\Factory\CommandFactory;
@@ -22,6 +23,7 @@ use Lemuria\Scenario\Fantasya\Script\Act\Market;
 use Lemuria\Scenario\Fantasya\Script\Act\Merchant;
 use Lemuria\Scenario\Fantasya\Script\Act\Passage;
 use Lemuria\Scenario\Fantasya\Script\Act\Roundtrip;
+use Lemuria\Scenario\Fantasya\Script\Act\Teacher;
 use Lemuria\Scenario\Fantasya\Script\Act\Trip;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateConstruction;
 use Lemuria\Scenario\Fantasya\Script\Scene\Create\CreateUnicum;
@@ -31,7 +33,6 @@ use Lemuria\Scenario\Fantasya\Script\Scene\Notes;
 use Lemuria\Scenario\Fantasya\Script\Scene\SetOrders;
 use Lemuria\Scenario\Fantasya\Script\Scene\SpreadRumour;
 use Lemuria\Storage\Ini\Section;
-use function Lemuria\mbUcFirst;
 
 class Factory
 {
@@ -57,6 +58,7 @@ class Factory
 		'Folgen'         => Follow::class,
 		'Gerüchte'       => Hearsay::class,
 		'Händler'        => Merchant::class,
+		'Lehrer'         => Teacher::class,
 		'Marktstand'     => Market::class,
 		'Reise'          => Trip::class,
 		'Rundreise'      => Roundtrip::class,

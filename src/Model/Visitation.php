@@ -15,6 +15,7 @@ use Lemuria\Model\Fantasya\Composition\Scroll;
 use Lemuria\Model\Fantasya\Composition\Spellbook;
 use Lemuria\Model\Fantasya\Extension\Quests;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
+use Lemuria\Model\Fantasya\Knowledge;
 use Lemuria\Model\Fantasya\MagicRing;
 use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Scenario\Quest;
@@ -22,6 +23,7 @@ use Lemuria\Model\Fantasya\Unicum;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Engine\Event\TravelCommands;
 use Lemuria\Scenario\Fantasya\Factory\BuilderTrait as ScenarioBuilderTrait;
+use Lemuria\Scenario\Fantasya\Quest\Controller\Instructor;
 use Lemuria\Scenario\Fantasya\Quest\Controller\SellUnicum;
 use Lemuria\Scenario\Fantasya\Script\Act\Demand;
 use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
@@ -38,6 +40,8 @@ class Visitation implements VisitationInterface
 	protected Unit $visitor;
 
 	protected SingletonSet $demand;
+
+	protected Knowledge $knowledge;
 
 	protected Buzzes $messages;
 
@@ -57,8 +61,9 @@ class Visitation implements VisitationInterface
 	}
 
 	protected function __construct(protected readonly Unit $unit) {
-		$this->demand   = new SingletonSet();
-		$this->messages = new Buzzes();
+		$this->demand    = new SingletonSet();
+		$this->knowledge = new Knowledge();
+		$this->messages  = new Buzzes();
 		if (!self::$silver) {
 			self::$silver = self::createCommodity(Silver::class);
 		}
@@ -67,6 +72,10 @@ class Visitation implements VisitationInterface
 
 	public function Demand(): SingletonSet {
 		return $this->demand;
+	}
+
+	public function Knowledge(): Knowledge {
+		return $this->knowledge;
 	}
 
 	public function from(Unit $unit): Buzzes {
@@ -101,6 +110,11 @@ class Visitation implements VisitationInterface
 				}
 			}
 		}
+		if (!$this->knowledge->isEmpty()) {
+			$quest = $this->createInstructorQuest();
+			$this->offerQuestTo($quest, $this->visitor);
+			Lemuria::Log()->debug($this->unit . ' applies as teacher.');
+		}
 	}
 
 	protected function calculateSilverValue(Unicum $unicum): Quantity {
@@ -131,6 +145,24 @@ class Visitation implements VisitationInterface
 		$quest->setId(Lemuria::Catalog()->nextId(Domain::Quest));
 		$quest->setOwner($this->unit)->setController($controller);
 		$controller->setPayload($quest)->setUnicum($unicum)->setPayment($payment)->setSeller($unicum->Collector());
+		$quests->add($quest);
+		return $quest;
+	}
+
+	protected function createInstructorQuest(): Quest {
+		/** @var Quests $quests */
+		$quests = $this->unit->Extensions()->init(Quests::class, fn() => new Quests($this->unit));
+		/** @var Instructor $controller */
+		$controller = self::createController(Instructor::class);
+		foreach ($quests->getAll($controller) as $quest) {
+			$controller->setKnowledge($this->knowledge);
+			return $quest;
+		}
+
+		$quest = new Quest();
+		$quest->setId(Lemuria::Catalog()->nextId(Domain::Quest));
+		$quest->setOwner($this->unit)->setController($controller);
+		$controller->setPayload($quest)->setKnowledge($this->knowledge);
 		$quests->add($quest);
 		return $quest;
 	}
