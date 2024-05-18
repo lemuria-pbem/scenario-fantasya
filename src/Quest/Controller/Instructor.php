@@ -2,9 +2,12 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Quest\Controller;
 
+use Lemuria\Engine\Fantasya\Census;
+use Lemuria\Engine\Fantasya\Factory\FollowTrait;
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestCompletedMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestFinishedMessage;
+use Lemuria\Engine\Fantasya\Outlook;
 use Lemuria\Id;
 use Lemuria\Identifiable;
 use Lemuria\Lemuria;
@@ -14,69 +17,83 @@ use Lemuria\Model\Fantasya\Knowledge;
 use Lemuria\Model\Fantasya\Party;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Model\Reassignment;
-use Lemuria\Scenario\Fantasya\Quest\Status;
+use Lemuria\Scenario\Fantasya\Quest\Payload;
 
 class Instructor extends AbstractController implements Reassignment
 {
 	use BuilderTrait;
+	use FollowTrait;
 	use MessageTrait;
 
 	private const string KNOWLEDGE = 'knowledge';
+
+	private const string LEADER = 'leader';
 
 	public function Knowledge(): Knowledge {
 		$knowledge = new Knowledge();
 		return $knowledge->unserialize($this->getFromPayload(self::KNOWLEDGE));
 	}
 
+	public function Leader(): ?Unit {
+		$id = $this->getFromPayload(self::LEADER);
+		return $id ? Unit::get(new Id($id)) : null;
+	}
+
+	public function createPayload(): Payload {
+		$payload               = parent::createPayload();
+		$payload[self::LEADER] = null;
+		return $payload;
+	}
+
 	public function isAvailableFor(Party|Unit $subject): bool {
+		$leader = $this->Leader();
+		if ($leader) {
+			$party = $subject instanceof Party ? $subject : $subject->Party();
+			return $leader->Party() === $party;
+		}
 		return true;
 	}
 
 	public function isAssignedTo(Unit $unit): bool {
-		return false;
+		return $unit === $this->Leader();
 	}
 
 	public function reassign(Id $oldId, Identifiable $identifiable): void {
 		if ($identifiable->Catalog() === Domain::Unit) {
-			/*
-			$id = $this->getFromPayload(self::CAPTAIN);
+			$id = $this->getFromPayload(self::LEADER);
 			if ($oldId->Id() === $id) {
-				$this->payload()->offsetSet(self::CAPTAIN, $identifiable->Id()->Id());
+				$this->payload()->offsetSet(self::LEADER, $identifiable->Id()->Id());
 			}
-			*/
 		}
 	}
 
 	public function remove(Identifiable $identifiable): void {
 		if ($identifiable->Catalog() === Domain::Unit) {
-			/*
-			$captain = $this->Captain();
-			if ($captain && $identifiable === $captain) {
-				$passengers = $captain->Vessel()?->Passengers();
-				if ($passengers) {
-					$me      = $this->quest()->Owner();
-					$captain = null;
-					foreach ($passengers as $unit) {
-						if ($unit !== $me && $unit !== $identifiable) {
-							$captain = $unit;
-							break;
-						}
-					}
-					if ($captain) {
-						$this->setCaptain($captain);
-						Lemuria::Log()->debug('New captain ' . $captain . ' set.');
-					} else {
-
-						Lemuria::Log()->warning('Captain killed, there is no replacement!');
+			$leader = $this->Leader();
+			if ($leader && $identifiable === $leader) {
+				$party    = $leader->Party();
+				$follower = $this->quest()->Owner();
+				$outlook  = new Outlook(new Census($follower->Party()));
+				foreach ($outlook->getApparitions($leader->Region()) as $unit) {
+					if ($unit !== $leader && $unit->Party() === $party) {
+						$this->setLeader($unit);
+						return;
 					}
 				}
+				$this->payload()->offsetSet(self::LEADER, null);
+				$this->ceaseFollowing($this->getExistingFollower($follower), $follower);
+				Lemuria::Catalog()->remove($this->quest());
 			}
-			*/
 		}
 	}
 
 	public function setKnowledge(Knowledge $knowledge): static {
 		$this->payload()->offsetSet(self::KNOWLEDGE, $knowledge->serialize());
+		return $this;
+	}
+
+	public function setLeader(Unit $leader): static {
+		$this->payload()->offsetSet(self::LEADER, $leader->Id()->Id());
 		return $this;
 	}
 
@@ -91,49 +108,17 @@ class Instructor extends AbstractController implements Reassignment
 	}
 
 	protected function checkForAssign(): bool {
-		/*
-		$vessel = $this->unit->Vessel();
-		if (!$vessel || $this->unit !== $vessel->Passengers()->Owner()) {
-			Lemuria::Log()->error($this->unit . ' is not a captain.');
-			return false;
-		}
-
-		$passenger = $this->quest()->Owner();
-		if ($passenger->Construction() || $passenger->Vessel()) {
-			Lemuria::Log()->error($passenger . ' is not ready to board.');
-			return false;
-		}
-		if (!$this->unit->Party()->Diplomacy()->has(Relation::ENTER, $passenger)) {
-			Lemuria::Log()->error($passenger . ' is not allowed to board the vessel ' . $vessel . '.');
-			return false;
-		}
-
-		$inventory = $passenger->Inventory();
-		$canPay    = true;
-		foreach ($this->Payment() as $quantity) {
-			if ($inventory->offsetGet($quantity->Commodity())->Count() < $quantity->Count()) {
-				Lemuria::Log()->error($passenger . ' cannot pay ' . $quantity . '.');
-				$canPay = false;
-			}
-		}
-		if (!$canPay) {
-			return false;
-		}
-
-		$vessel->Passengers()->add($passenger);
-		$this->message(BoardMessage::class, $passenger)->e($vessel);
-		foreach ($this->Payment() as $quantity) {
-			$inventory->remove(new Quantity($quantity->Commodity(), $quantity->Count()));
-			$this->unit->Inventory()->add(new Quantity($quantity->Commodity(), $quantity->Count()));
-			$this->message(GiveMessage::class, $passenger)->i($quantity)->e($this->unit);
-			$this->message(GiveReceivedFromForeignMessage::class, $this->unit)->i($quantity)->e($passenger);
-		}
-		$this->setCaptain($this->unit);
+		//TODO handle payment
+		$this->setLeader($this->unit);
 		$this->assignQuest($this->unit);
-		Lemuria::Log()->debug($passenger . ' has boarded vessel ' . $vessel . ' and paid the passage.');
+		$follower = $this->quest()->Owner();
+		$follow   = $this->getExistingFollower($follower);
+		if ($follow) {
+			Lemuria::Score()->remove($follow);
+		}
+		$this->startFollowing($this->unit, $follower);
+		Lemuria::Log()->debug($this->unit . ' has engaged ' . $this->quest()->Owner() . ' as teacher.');
 		return true;
-		*/
-		return false;
 	}
 
 	protected function checkForFinish(): bool {

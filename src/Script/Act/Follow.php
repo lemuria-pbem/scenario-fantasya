@@ -5,19 +5,14 @@ namespace Lemuria\Scenario\Fantasya\Script\Act;
 use Lemuria\Engine\Fantasya\Command\Trespass\Board;
 use Lemuria\Engine\Fantasya\Command\Trespass\Enter;
 use Lemuria\Engine\Fantasya\Command\Vacate\Leave;
-use Lemuria\Engine\Fantasya\Effect\FollowEffect;
+use Lemuria\Engine\Fantasya\Factory\FollowTrait;
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Engine\Fantasya\Factory\SiegeTrait;
-use Lemuria\Engine\Fantasya\Message\Unit\FollowerMessage;
-use Lemuria\Engine\Fantasya\Message\Unit\FollowerNotMessage;
-use Lemuria\Engine\Fantasya\Message\Unit\FollowingMessage;
-use Lemuria\Engine\Fantasya\Message\Unit\FollowingNotMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\LeaveConstructionMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\LeaveVesselMessage;
 use Lemuria\Engine\Fantasya\Phrase;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Id;
-use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Construction;
 use Lemuria\Model\Fantasya\Extension\Followers;
 use Lemuria\Model\Fantasya\Unit;
@@ -30,6 +25,7 @@ use Lemuria\Scenario\Fantasya\Script\AbstractAct;
  */
 class Follow extends AbstractAct
 {
+	use FollowTrait;
 	use MessageTrait;
 	use SiegeTrait;
 
@@ -71,27 +67,27 @@ class Follow extends AbstractAct
 	}
 
 	protected function follow(): static {
-		$follow = $this->getExistingFollower();
+		$follow = $this->getExistingFollower($this->Unit());
 		if ($follow) {
 			if ($follow->Leader() === $this->leader) {
 				/** @var Followers $followers */
 				$followers = $this->leader->Extensions()->init(Followers::class);
 				$followers->Followers()->add($this->Unit());
 			} else {
-				$this->ceaseFollowing($follow);
-				$this->startFollowing();
+				$this->ceaseFollowing($follow, $this->Unit());
+				$this->startFollowing($this->leader, $this->Unit());
 			}
 		} else {
-			$this->startFollowing();
+			$this->startFollowing($this->leader, $this->Unit());
 		}
 		$this->assertSameEnvironment();
 		return $this->addToChain();
 	}
 
 	protected function unfollow(): static {
-		$follow = $this->getExistingFollower();
+		$follow = $this->getExistingFollower($this->Unit());
 		if ($follow) {
-			$this->ceaseFollowing($follow);
+			$this->ceaseFollowing($follow, $this->Unit());
 		}
 		return $this;
 	}
@@ -137,42 +133,6 @@ class Follow extends AbstractAct
 				$this->addLeaveCommand();
 			}
 		}
-	}
-
-	private function getExistingFollower(): ?FollowEffect {
-		$follower = $this->Unit();
-		$follow   = new FollowEffect(State::getInstance());
-		$follow   = Lemuria::Score()->find($follow->setUnit($follower));
-		return $follow instanceof FollowEffect ? $follow : null;
-	}
-
-	private function startFollowing(): void {
-		$follower = $this->Unit();
-		$follow   = new FollowEffect(State::getInstance());
-		Lemuria::Score()->add($follow->setUnit($follower)->setLeader($this->leader));
-		Lemuria::Log()->debug($follower . ' will follow ' . $this->leader . ' from now on.');
-		/** @var Followers $followers */
-		$followers = $this->leader->Extensions()->init(Followers::class);
-		$followers->Followers()->add($follower);
-		$this->message(FollowerMessage::class, $follower)->e($this->leader);
-		$this->message(FollowingMessage::class, $this->leader)->e($follower);
-	}
-
-	private function ceaseFollowing(FollowEffect $follow): void {
-		$follower   = $this->Unit();
-		$leader     = $follow->Leader();
-		$extensions = $leader->Extensions();
-		if (isset($extensions[Followers::class])) {
-			/** @var Followers $followers */
-			$followers = $extensions[Followers::class];
-			if ($followers->Followers()->has($follower->Id())) {
-				$followers->Followers()->remove($follower);
-				$this->message(FollowingNotMessage::class, $follower)->e($leader);
-				$this->message(FollowerNotMessage::class, $leader)->e($follower);
-			}
-		}
-		Lemuria::Score()->remove($follow);
-		Lemuria::Log()->debug($follower . ' will not follow ' . $leader . ' any longer.');
 	}
 
 	private function addEnterCommand(Construction $construction): void {

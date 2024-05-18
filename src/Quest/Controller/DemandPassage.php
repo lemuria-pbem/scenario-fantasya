@@ -18,6 +18,7 @@ use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Region;
 use Lemuria\Model\Fantasya\Relation;
 use Lemuria\Model\Fantasya\Resources;
+use Lemuria\Model\Fantasya\Scenario\Payload;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Model\Reassignment;
 use Lemuria\Scenario\Fantasya\Quest\Status;
@@ -45,6 +46,12 @@ class DemandPassage extends AbstractController implements Reassignment
 	public function Captain(): ?Unit {
 		$id = $this->getFromPayload(self::CAPTAIN);
 		return $id ? Unit::get(new Id($id)) : null;
+	}
+
+	public function createPayload(): Payload {
+		$payload = parent::createPayload();
+		$payload[self::CAPTAIN] = null;
+		return $payload;
 	}
 
 	public function isAvailableFor(Party|Unit $subject): bool {
