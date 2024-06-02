@@ -63,7 +63,7 @@ class CreateUnicum extends AbstractCreate
 		parent::play();
 		$unicum = new Unicum();
 		$id     = $this->createId(Domain::Unicum);
-		$unicum->setId($id)->setComposition($this->factory()->composition($this->composition));
+		$unicum->setId($id)->setComposition($this->factory()->composition($this->composition)->init());
 		if ($this->unit) {
 			$this->unit->Treasury()->add($unicum);
 		} elseif ($this->construction) {
