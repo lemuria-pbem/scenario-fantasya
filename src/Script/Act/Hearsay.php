@@ -24,6 +24,7 @@ use Lemuria\Model\Fantasya\Quantity;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Engine\Event\CollectRumour;
 use Lemuria\Scenario\Fantasya\Macro;
+use Lemuria\Scenario\Fantasya\Model\Category;
 use Lemuria\Scenario\Fantasya\Model\GoodKinds;
 use Lemuria\Scenario\Fantasya\Model\Myth;
 use Lemuria\Scenario\Fantasya\Model\Rumour;
@@ -211,9 +212,10 @@ class Hearsay extends AbstractAct
 	 * @param \ArrayObject<Unit> $units
 	 */
 	private function addEncounterRumours(\ArrayObject $units): void {
-		$r = self::ROUNDS[Myth::Encounter->name];
+		$r        = self::ROUNDS[Myth::Encounter->name];
+		$category = $this->scene->category();
 		foreach ($units as $unit) {
-			if ($unit === $this->unit){
+			if ($unit === $this->unit || $category[$unit] !== Category::NPC) {
 				continue;
 			}
 			$rumour              = $this->dictionary->random('hearsay.encounter');

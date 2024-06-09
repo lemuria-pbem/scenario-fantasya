@@ -6,9 +6,11 @@ use Lemuria\Engine\Fantasya\Command;
 use Lemuria\Engine\Fantasya\Phrase;
 use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Scenario\Fantasya\Act;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Macro;
+use Lemuria\Scenario\Fantasya\Model\Category;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\Due;
 use Lemuria\Scenario\Fantasya\Script\IdTrait;
@@ -17,6 +19,8 @@ use Lemuria\Storage\Ini\Section;
 class SetOrders extends AbstractScene
 {
 	use IdTrait;
+
+	private const string CATEGORY = 'Kategorie';
 
 	/**
 	 * @var array<Command>
@@ -38,7 +42,9 @@ class SetOrders extends AbstractScene
 	 */
 	public function parse(Section $section): static {
 		parent::parse($section);
-		$this->context()->setUnit($this->parseUnit());
+		$unit = $this->parseUnit();
+		$this->context()->setUnit($unit);
+		$this->parseCategory($unit);
 		foreach ($this->lines as $line) {
 			$macro = Macro::parse($line);
 			if ($macro) {
@@ -92,5 +98,20 @@ class SetOrders extends AbstractScene
 	public function chain(Act $act): static {
 		$this->chain[] = $act;
 		return $this;
+	}
+
+	/**
+	 * @throw ParseException
+	 */
+	protected function parseCategory(Unit $unit): void {
+		$category = $this->getOptionalValue(self::CATEGORY);
+		if ($category) {
+			$parsed = Category::tryFrom(strtolower($category));
+			if ($parsed) {
+				$this->category()->offsetSet($unit, $parsed);
+			} else {
+				throw new ParseException('Invalid category: ' . $category);
+			}
+		}
 	}
 }

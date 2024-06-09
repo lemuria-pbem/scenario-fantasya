@@ -9,6 +9,7 @@ use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Party\Type;
 use Lemuria\Scenario\Fantasya\Exception\ParseException;
 use Lemuria\Scenario\Fantasya\Factory;
+use Lemuria\Scenario\Fantasya\Model\CategoryDirectory;
 use Lemuria\Scenario\Fantasya\Model\IdMapper;
 use Lemuria\Scenario\Fantasya\Scene;
 use Lemuria\Scenario\Fantasya\Script;
@@ -34,14 +35,17 @@ abstract class AbstractScene implements Scene
 
 	private static IdMapper $mapper;
 
+	private static CategoryDirectory $category;
+
 	private bool $dueInitialized = false;
 
 	public function __construct(protected readonly Factory $scenarioFactory, protected readonly Script $script) {
 		if (!self::$context) {
 			self::$context = new Context(State::getInstance());
 			self::$context->setParty(State::getInstance()->getTurnOptions()->Finder()->Party()->findByType(Type::NPC));
-			self::$factory = self::$context->Factory();
-			self::$mapper  = new IdMapper();
+			self::$factory  = self::$context->Factory();
+			self::$mapper   = new IdMapper();
+			self::$category = new CategoryDirectory();
 		}
 	}
 
@@ -84,6 +88,10 @@ abstract class AbstractScene implements Scene
 
 	public function context(): Context {
 		return self::$context;
+	}
+
+	public function category(): CategoryDirectory {
+		return self::$category;
 	}
 
 	protected function factory(): CommandFactory {

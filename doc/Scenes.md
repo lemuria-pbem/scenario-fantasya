@@ -167,3 +167,21 @@ werden sie von Befehlen unterschieden.
     ID = h
     Marktstand(3)
     Rundreise(r1, r2, r3)
+
+### Variablen
+
+In einem Skript können Variablen-Schlüssel stehen, die den aktuellen Zustand der
+Einheit und ihrer Handlungen speichern. Neben den Variablen der verschiedenen
+Handlungen gibt es noch Variablen, die eine allgemeine Bedeutung haben.
+
+#### Kategorie
+
+    Kategorie = NPC
+
+Die Einheit tritt als normaler Nichtspielercharakter auf und handelt je nach
+Handlungsanweisungen. Dies ist die Vorgabe für alle NPC.
+
+    Kategorie = Einheit
+
+Die Einheit verhält sich passiv und handelt nicht. Sie wird in Gerüchten nicht
+erwähnt und interagiert nicht mit Spielereinheiten.
