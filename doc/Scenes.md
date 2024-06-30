@@ -56,6 +56,8 @@ Optionale Schlüssel:
     Talent = Handeln 5, Ausdauer 1
     Talent = Reiten 2
 
+Ohne Angabe der Größe wird eine Einheit mit einer Person erzeugt. Eine Größe von Null ist erlaubt.
+
 ### Gebäude
 
 Gebäude können auf drei verschiedene Arten erzeugt werden:

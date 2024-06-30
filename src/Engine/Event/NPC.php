@@ -23,7 +23,7 @@ final class NPC extends AbstractEvent
 		$count = 0;
 		foreach (Party::all() as $party) {
 			if ($party->Type() === Type::Player) {
-				$party->Extensions()->offsetUnset(QuestsWithPerson::class);
+				//$party->Extensions()->offsetUnset(QuestsWithPerson::class);
 			}
 			if ($party->Type() === Type::NPC) {
 				foreach ($party->People()->getClone() as $unit) {
