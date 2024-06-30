@@ -25,6 +25,8 @@ use Lemuria\Scenario\Fantasya\Engine\Event\TravelCommands;
 use Lemuria\Scenario\Fantasya\Factory\BuilderTrait as ScenarioBuilderTrait;
 use Lemuria\Scenario\Fantasya\Quest\Controller\Instructor;
 use Lemuria\Scenario\Fantasya\Quest\Controller\SellUnicum;
+use Lemuria\Scenario\Fantasya\Quest\Payload;
+use Lemuria\Scenario\Fantasya\Quest\Status;
 use Lemuria\Scenario\Fantasya\Script\Act\Demand;
 use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 use Lemuria\Scenario\Fantasya\TranslateTrait;
@@ -112,8 +114,10 @@ class Visitation implements VisitationInterface
 		}
 		if (!$this->knowledge->isEmpty()) {
 			$quest = $this->createInstructorQuest();
-			$this->offerQuestTo($quest, $this->visitor);
-			Lemuria::Log()->debug($this->unit . ' applies as teacher.');
+			if ($quest) {
+				$this->offerQuestTo($quest, $this->visitor);
+				Lemuria::Log()->debug($this->unit . ' applies as teacher.');
+			}
 		}
 	}
 
@@ -149,21 +153,30 @@ class Visitation implements VisitationInterface
 		return $quest;
 	}
 
-	protected function createInstructorQuest(): Quest {
+	protected function createInstructorQuest(): ?Quest {
 		/** @var Quests $quests */
 		$quests = $this->unit->Extensions()->init(Quests::class, fn() => new Quests($this->unit));
 		/** @var Instructor $controller */
 		$controller = self::createController(Instructor::class);
-		foreach ($quests->getAll($controller) as $quest) {
-			$controller->setKnowledge($this->knowledge);
+
+		if ($quests->isEmpty()) {
+			$quest = new Quest();
+			$quest->setId(Lemuria::Catalog()->nextId(Domain::Quest));
+			$quest->setOwner($this->unit)->setController($controller);
+			$controller->setPayload($quest)->setKnowledge($this->knowledge);
+			$quests->add($quest);
 			return $quest;
 		}
 
-		$quest = new Quest();
-		$quest->setId(Lemuria::Catalog()->nextId(Domain::Quest));
-		$quest->setOwner($this->unit)->setController($controller);
-		$controller->setPayload($quest)->setKnowledge($this->knowledge);
-		$quests->add($quest);
-		return $quest;
+		foreach ($quests->getAll($controller) as $quest) {
+			/** @var Payload $payload */
+			$payload = $quest->Payload();
+			if ($payload->hasAnyStatus(Status::Assigned)) {
+				continue;
+			}
+			$controller->setPayload($quest)->setKnowledge($this->knowledge);
+			return $quest;
+		}
+		return null;
 	}
 }
