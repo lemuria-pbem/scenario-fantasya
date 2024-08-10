@@ -2,7 +2,9 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
+use Lemuria\Engine\Fantasya\Travel\Movement;
 use Lemuria\Lemuria;
+use Lemuria\Model\Fantasya\World\Strategy\OverLand;
 use Lemuria\Model\World\Strategy\ShortestPath;
 use Lemuria\Scenario\Fantasya\Engine\Event\EnterMarkets;
 use Lemuria\Scenario\Fantasya\Macro;
@@ -51,13 +53,19 @@ class Trip extends AbstractAct
 			return false;
 		}
 
-		$path = $this->findWay(ShortestPath::class);
+		$movement = $this->scene->context()->getCalculus($this->unit)->getTrip()->Movement();
+		if (in_array($movement, [Movement::Fly, Movement::Ship])) {
+			$path = $this->findWay(ShortestPath::class);
+		} else {
+			$path = $this->findWay(OverLand::class);
+		}
+
 		if ($path->isViable()) {
 			if ($this->travel($path->getBest()) > 0) {
 				EnterMarkets::register($this);
 			}
 		} else {
-			Lemuria::Log()->error('There is no viable path from ' . $this->start . ' to ' . $this->destination . '.');
+			Lemuria::Log()->notice('There is no viable path from ' . $this->start . ' to ' . $this->destination . '.');
 		}
 		return true;
 	}
