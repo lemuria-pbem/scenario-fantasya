@@ -41,7 +41,7 @@ final class EnterMarkets extends AbstractEvent
 
 	protected function run(): void {
 		foreach (self::$market as $id => $market) {
-			if (self::$trip[$id]) {
+			if (isset(self::$trip[$id])) {
 				if ($this->hasTravelled($market->Unit())) {
 					$market->enterAfterTrip();
 				}
