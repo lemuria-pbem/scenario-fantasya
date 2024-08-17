@@ -138,6 +138,7 @@ class Market extends AbstractAct
 			/** @var Construction $market */
 			$market = $markets->random();
 			$market->Inhabitants()->add($unit);
+			$this->lastTrade = 0;
 			$this->message(EnterMessage::class, $unit)->e($market);
 			Lemuria::Log()->debug($unit . ' enters market ' . $market . '.');
 			if ($markets->count() > 1) {
