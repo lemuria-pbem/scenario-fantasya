@@ -45,6 +45,8 @@ class Visitation implements VisitationInterface
 
 	protected Knowledge $knowledge;
 
+	protected ?Quest $passage = null;
+
 	protected Buzzes $messages;
 
 	/** @var array<int, self> */
@@ -85,7 +87,14 @@ class Visitation implements VisitationInterface
 		$this->messages->clear();
 		Lemuria::Log()->debug($this->unit . ' is visited by ' . $unit . '.');
 		$this->makeUnicumOffers();
+		$this->makeInstructorOffer();
+		$this->makePassageDemand();
 		return $this->messages;
+	}
+
+	public function setPassage(Quest $quest): static {
+		$this->passage = $quest;
+		return $this;
 	}
 
 	protected function makeUnicumOffers(): void {
@@ -112,12 +121,22 @@ class Visitation implements VisitationInterface
 				}
 			}
 		}
+	}
+
+	protected function makeInstructorOffer(): void {
 		if (!$this->knowledge->isEmpty()) {
 			$quest = $this->createInstructorQuest();
 			if ($quest) {
 				$this->offerQuestTo($quest, $this->visitor);
 				Lemuria::Log()->debug($this->unit . ' applies as teacher.');
 			}
+		}
+	}
+
+	protected function makePassageDemand(): void {
+		if ($this->passage) {
+			$this->offerQuestTo($this->passage, $this->visitor);
+			Lemuria::Log()->debug($this->unit . ' demands a passage.');
 		}
 	}
 

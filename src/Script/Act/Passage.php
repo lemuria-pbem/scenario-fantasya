@@ -18,6 +18,7 @@ use Lemuria\Scenario\Fantasya\Quest\Controller\DemandPassage;
 use Lemuria\Scenario\Fantasya\Script\AbstractAct;
 use Lemuria\Scenario\Fantasya\Script\AbstractScene;
 use Lemuria\Scenario\Fantasya\Script\TripTrait;
+use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 
 /**
  * Act: Schiffspassage(a, b, [Bezahlung])
@@ -26,6 +27,7 @@ class Passage extends AbstractAct implements Seafarer
 {
 	use BuilderTrait;
 	use TripTrait;
+	use VisitationTrait;
 
 	protected Region $from;
 
@@ -85,7 +87,8 @@ class Passage extends AbstractAct implements Seafarer
 			return $this;
 		}
 
-		$this->createQuest();
+		$quest = $this->createQuest();
+		$this->addVisitationEffect()->setPassage($quest);
 		return $this;
 	}
 
