@@ -6,6 +6,7 @@ use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Engine\Fantasya\Message\Unit\BoardMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\GiveMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\GiveReceivedFromForeignMessage;
+use Lemuria\Engine\Fantasya\Message\Unit\LeaveVesselMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestCompletedMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestFinishedMessage;
 use Lemuria\Id;
@@ -115,10 +116,15 @@ class DemandPassage extends AbstractController implements Reassignment
 
 	protected function updateStatus(): void {
 		$this->setStatus(Status::Completed);
-		$unit = $this->Captain();
-		$this->removeQuest($unit);
-		$this->message(QuestFinishedMessage::class, $unit)->e($this->quest());
-		Lemuria::Log()->debug($this->unit . ' has been transported to ' . $this->Destination() . '.');
+		$quest  = $this->quest();
+		$unit   = $quest->Owner();
+		$vessel = $unit->Vessel();
+		$vessel->Passengers()->remove($unit);
+		$this->message(LeaveVesselMessage::class, $unit)->e($vessel);
+		$this->removeQuest($this->unit);
+		$this->deleteQuest($quest);
+		$this->message(QuestFinishedMessage::class, $this->unit)->e($quest);
+		Lemuria::Log()->debug($unit . ' has been transported to ' . $this->Destination() . '.');
 	}
 
 	protected function checkForAssign(): bool {

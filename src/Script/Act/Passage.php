@@ -3,6 +3,10 @@ declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
 use Lemuria\Engine\Fantasya\Exception\UnknownItemException;
+use Lemuria\Engine\Fantasya\Factory\MessageTrait;
+use Lemuria\Engine\Fantasya\Message\Unit\TravelMessage;
+use Lemuria\Engine\Fantasya\Travel\Movement;
+use Lemuria\Engine\Fantasya\Travel\Trip\Cruise;
 use Lemuria\Engine\Fantasya\Travel\Trip\Seafarer;
 use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
@@ -26,6 +30,7 @@ use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 class Passage extends AbstractAct implements Seafarer
 {
 	use BuilderTrait;
+	use MessageTrait;
 	use TripTrait;
 	use VisitationTrait;
 
@@ -36,6 +41,11 @@ class Passage extends AbstractAct implements Seafarer
 	protected bool $isUnderway = true;
 
 	private Quest $quest;
+
+	/**
+	 * @var array<Region>
+	 */
+	private array $route = [];
 
 	public function __construct(AbstractScene $scene) {
 		parent::__construct($scene);
@@ -89,6 +99,7 @@ class Passage extends AbstractAct implements Seafarer
 
 		$quest = $this->createQuest();
 		$this->addVisitationEffect()->setPassage($quest);
+		Cruise::engage($this);
 		return $this;
 	}
 
@@ -101,11 +112,13 @@ class Passage extends AbstractAct implements Seafarer
 	}
 
 	public function sailedTo(Region $region): void {
+		$this->route[] = $region;
 		/** @var DemandPassage $controller */
 		$controller = $this->quest->Controller();
 		$controller->setPayload($this->quest);
-		if ($region === $controller->Destination()) {
-			$controller->callFrom($this->quest->Owner());
+		if ($region === $controller->Destination() && $this->unit->Region() === $this->destination) {
+			$this->message(TravelMessage::class, $this->unit)->p(Movement::Ship->name)->entities($this->route);
+			$controller->callFrom($controller->Captain());
 		}
 	}
 
