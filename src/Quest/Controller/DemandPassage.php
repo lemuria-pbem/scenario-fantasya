@@ -133,14 +133,9 @@ class DemandPassage extends AbstractController implements Reassignment
 			Lemuria::Log()->error($this->unit . ' is not a captain.');
 			return false;
 		}
-
 		$passenger = $this->quest()->Owner();
 		if ($passenger->Construction() || $passenger->Vessel()) {
 			Lemuria::Log()->error($passenger . ' is not ready to board.');
-			return false;
-		}
-		if (!$this->unit->Party()->Diplomacy()->has(Relation::ENTER, $passenger)) {
-			Lemuria::Log()->error($passenger . ' is not allowed to board the vessel ' . $vessel . '.');
 			return false;
 		}
 
