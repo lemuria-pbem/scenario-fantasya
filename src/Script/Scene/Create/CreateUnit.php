@@ -9,6 +9,7 @@ use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Ability;
 use Lemuria\Model\Fantasya\Aura;
+use Lemuria\Model\Fantasya\Commodity\Peasant;
 use Lemuria\Model\Fantasya\Construction;
 use Lemuria\Model\Fantasya\Factory\BuilderTrait;
 use Lemuria\Model\Fantasya\Knowledge;
@@ -122,6 +123,15 @@ class CreateUnit extends AbstractCreate
 		$this->context()->setUnit($unit);
 		$this->message(TempMessage::class, $unit);
 		Lemuria::Log()->debug('New unit ' . $unit . ' created.');
+
+		$resources = $this->region->Resources();
+		$peasant   = self::createCommodity(Peasant::class);
+		$recruits  = min($this->size, $resources[$peasant]->Count());
+		if ($recruits > 0) {
+			$quantity = new Quantity($peasant, $recruits);
+			$resources->remove($quantity);
+			Lemuria::Log()->debug($quantity . ' removed from resources in ' . $this->region . '.');
+		}
 
 		return $this;
 	}
