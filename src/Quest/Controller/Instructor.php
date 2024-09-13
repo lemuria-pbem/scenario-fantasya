@@ -98,6 +98,9 @@ class Instructor extends AbstractController implements Reassignment
 	}
 
 	protected function updateStatus(): void {
+		//TODO Cancel FOLGEN
+		//TODO VERLASSEN
+		//TODO FollowEffect entfernen
 		/*
 		$this->setStatus(Status::Completed);
 		$unit = $this->Captain();

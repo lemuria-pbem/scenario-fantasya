@@ -2,6 +2,10 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Script\Act;
 
+use Lemuria\Engine\Fantasya\Command\Teach;
+use Lemuria\Engine\Fantasya\Factory\FollowTrait;
+use Lemuria\Engine\Fantasya\Phrase;
+use Lemuria\Engine\Fantasya\State;
 use Lemuria\Lemuria;
 use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Extension\Quests;
@@ -20,6 +24,7 @@ use Lemuria\Scenario\Fantasya\Script\VisitationTrait;
 class Teacher extends AbstractAct
 {
 	use BuilderTrait;
+	use FollowTrait;
 	use VisitationTrait;
 
 	/**
@@ -59,7 +64,13 @@ class Teacher extends AbstractAct
 	public function play(): static {
 		parent::play();
 		$this->addVisitationEffect()->Knowledge()->fill($this->knowledge);
-		$this->createQuest();
+		$quest   = $this->createQuest();
+		$student = $this->getExistingFollower($this->unit)?->Leader();
+		if ($student && $quest->isAssignedTo($student)) {
+			$teach = new Teach(new Phrase('LEHREN ' . $student->Id()), $this->scene->context());
+			$teach->setAlternative();
+			State::getInstance()->injectIntoTurn($teach);
+		}
 		return $this;
 	}
 
