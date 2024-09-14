@@ -5,6 +5,8 @@ namespace Lemuria\Scenario\Fantasya\Quest\Controller;
 use Lemuria\Engine\Fantasya\Census;
 use Lemuria\Engine\Fantasya\Factory\FollowTrait;
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
+use Lemuria\Engine\Fantasya\Message\Unit\LeaveConstructionMessage;
+use Lemuria\Engine\Fantasya\Message\Unit\LeaveVesselMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestCompletedMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestFinishedMessage;
 use Lemuria\Engine\Fantasya\Outlook;
@@ -18,6 +20,7 @@ use Lemuria\Model\Fantasya\Party;
 use Lemuria\Model\Fantasya\Unit;
 use Lemuria\Model\Reassignment;
 use Lemuria\Scenario\Fantasya\Quest\Payload;
+use Lemuria\Scenario\Fantasya\Quest\Status;
 
 class Instructor extends AbstractController implements Reassignment
 {
@@ -99,26 +102,29 @@ class Instructor extends AbstractController implements Reassignment
 
 	protected function updateStatus(): void {
 		//TODO Cancel FOLGEN
-		//TODO VERLASSEN
-		//TODO FollowEffect entfernen
-		/*
-		$this->setStatus(Status::Completed);
-		$unit = $this->Captain();
-		$this->removeQuest($unit);
-		$this->message(QuestFinishedMessage::class, $unit)->e($this->quest());
-		Lemuria::Log()->debug($this->unit . ' has been transported to ' . $this->Destination() . '.');
-		*/
+		$quest         = $this->quest();
+		$currentLeader = $this->Leader();
+		$follower      = $this->getUnfollower();
+		$this->leaveWhenDone($follower);
+		$this->removeQuest($currentLeader);
+		$this->message(QuestFinishedMessage::class, $currentLeader)->e($quest);
+		if ($this->unit === $currentLeader) {
+			$this->setStatus(Status::Completed);
+			$this->deleteQuest($quest);
+			$this->message(QuestFinishedMessage::class, $currentLeader)->e($quest);
+			Lemuria::Log()->debug($follower . ' has terminated teaching ' . $currentLeader . '.');
+		} else {
+			Lemuria::Log()->debug('Instructor ' . $follower . ' changes leader from ' . $currentLeader . ' to ' . $this->unit . '.');
+			$this->checkForAssign();
+		}
 	}
 
 	protected function checkForAssign(): bool {
 		//TODO handle payment
 		$this->setLeader($this->unit);
 		$this->assignQuest($this->unit);
-		$follower = $this->quest()->Owner();
-		$follow   = $this->getExistingFollower($follower);
-		if ($follow) {
-			Lemuria::Score()->remove($follow);
-		}
+		$follower = $this->getUnfollower();
+		$this->enterForLeader($this->unit, $follower);
 		$this->startFollowing($this->unit, $follower);
 		Lemuria::Log()->debug($this->unit . ' has engaged ' . $this->quest()->Owner() . ' as teacher.');
 		return true;
@@ -130,5 +136,25 @@ class Instructor extends AbstractController implements Reassignment
 
 	protected function completed(): void {
 		$this->message(QuestCompletedMessage::class, $this->unit)->e($this->quest());
+	}
+
+	private function leaveWhenDone(Unit $unit): void {
+		$construction = $unit->Construction();
+		if ($construction) {
+			$inhabitants = $construction->Inhabitants();
+			if ($inhabitants->Owner()->Party() !== $unit->Party()) {
+				$inhabitants->remove($unit);
+				$this->message(LeaveConstructionMessage::class, $unit)->e($construction);
+			}
+		} else {
+			$vessel= $unit->Vessel();
+			if ($vessel) {
+				$passengers = $vessel->Passengers();
+				if ($passengers->Owner()->Party() !== $unit->Party()) {
+					$passengers->remove($unit);
+					$this->message(LeaveVesselMessage::class, $unit)->e($vessel);
+				}
+			}
+		}
 	}
 }

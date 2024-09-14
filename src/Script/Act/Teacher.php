@@ -11,6 +11,7 @@ use Lemuria\Model\Domain;
 use Lemuria\Model\Fantasya\Extension\Quests;
 use Lemuria\Model\Fantasya\Knowledge;
 use Lemuria\Model\Fantasya\Scenario\Quest;
+use Lemuria\Scenario\Fantasya\Engine\Event\TeachingInstructors;
 use Lemuria\Scenario\Fantasya\Factory\BuilderTrait;
 use Lemuria\Scenario\Fantasya\Macro;
 use Lemuria\Scenario\Fantasya\Quest\Controller\Instructor;
@@ -33,6 +34,8 @@ class Teacher extends AbstractAct
 	private static array $teacher = [];
 
 	private Knowledge $knowledge;
+
+	private Quest $quest;
 
 	public function __construct(SetOrders $scene) {
 		parent::__construct($scene);
@@ -64,18 +67,24 @@ class Teacher extends AbstractAct
 	public function play(): static {
 		parent::play();
 		$this->addVisitationEffect()->Knowledge()->fill($this->knowledge);
-		$quest   = $this->createQuest();
-		$student = $this->getExistingFollower($this->unit)?->Leader();
-		if ($student && $quest->isAssignedTo($student)) {
-			$teach = new Teach(new Phrase('LEHREN ' . $student->Id()), $this->scene->context());
-			$teach->setAlternative();
-			State::getInstance()->injectIntoTurn($teach);
-		}
+		$this->quest = $this->createQuest();
+		TeachingInstructors::register($this);
 		return $this;
 	}
 
 	public function getChainResult(): bool {
 		return true;
+	}
+
+	public function teach(): void {
+		$this->unit = $this->quest->Owner();
+		$student    = $this->getExistingFollower($this->unit)?->Leader();
+		if ($student && $this->quest->isAssignedTo($student)) {
+			$this->scene->context()->setUnit($this->unit);
+			$teach = new Teach(new Phrase('LEHREN ' . $student->Id()), $this->scene->context());
+			//$teach->setAlternative();
+			State::getInstance()->injectIntoTurn($teach);
+		}
 	}
 
 	protected function createQuest(): Quest {
@@ -93,7 +102,6 @@ class Teacher extends AbstractAct
 			$quests->add($quest);
 		}
 		$controller->setPayload($quest)->setKnowledge($this->knowledge);
-		//$this->quest = $quest;
 		return $quest;
 	}
 }

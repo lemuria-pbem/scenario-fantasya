@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 namespace Lemuria\Scenario\Fantasya\Quest\Controller;
 
+use Lemuria\Engine\Fantasya\Factory\FollowTrait;
 use Lemuria\Engine\Fantasya\Factory\MessageTrait;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestChoiceMessage;
 use Lemuria\Engine\Fantasya\Message\Unit\QuestFinishedMessage;
@@ -21,6 +22,7 @@ use Lemuria\SingletonTrait;
 
 abstract class AbstractController implements Controller
 {
+	use FollowTrait;
 	use MessageTrait;
 	use SingletonTrait;
 
@@ -113,6 +115,15 @@ abstract class AbstractController implements Controller
 			return $this->payload[$offset];
 		}
 		throw new OffsetNotFoundException($offset);
+	}
+
+	protected function getUnfollower(): Unit {
+		$follower = $this->quest()->Owner();
+		$follow   = $this->getExistingFollower($follower);
+		if ($follow) {
+			Lemuria::Score()->remove($follow);
+		}
+		return $follower;
 	}
 
 	protected function status(): Status {
