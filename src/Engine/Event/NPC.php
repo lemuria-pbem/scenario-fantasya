@@ -24,7 +24,6 @@ final class NPC extends AbstractEvent
 	protected function run(): void {
 		$count = 0;
 		foreach (Party::all() as $party) {
-			/** @var Party $party */
 			if ($party->Type() === Type::Player) {
 				$this->clearUnassignedQuests($party);
 			}

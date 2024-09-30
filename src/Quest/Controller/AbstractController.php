@@ -158,7 +158,7 @@ abstract class AbstractController implements Controller
 
 	protected function deleteQuest(Quest $quest): void {
 		$extensions = $quest->Owner()->Extensions();
-		/** @var Quests $quest */
+		/** @var Quests $quests */
 		$quests = $extensions[Quests::class];
 		$quests->remove($quest);
 		Lemuria::Catalog()->remove($quest);

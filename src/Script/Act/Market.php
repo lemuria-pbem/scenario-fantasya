@@ -75,12 +75,11 @@ class Market extends AbstractAct
 			if (!$this->getChainResult()) {
 				$leave = new Leave(new Phrase('VERLASSEN'), $context);
 				State::getInstance()->injectIntoTurn($leave);
-				EnterMarkets::register($this);
 			} else {
 				$this->addVisitationEffect();
 				TravelCommands::cancelTravelFor($unit);
-				EnterMarkets::register($this);
 			}
+			EnterMarkets::register($this);
 		} else {
 			$region  = $unit->Region();
 			$markets = $this->findMarkets($unit, $region, true);
