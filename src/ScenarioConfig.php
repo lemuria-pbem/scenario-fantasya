@@ -14,8 +14,8 @@ abstract class ScenarioConfig extends LemuriaConfig
 {
 	public function Builder(): Builder {
 		$builder = new DefaultBuilder();
-		return $builder->register(new ModelSingletonCatalog())->register(new EngineSingletonCatalog())
-			->register(new ScenarioSingletonCatalog());
+		$builder->register(new ModelSingletonCatalog())->register(new EngineSingletonCatalog())->register(new ScenarioSingletonCatalog());
+		return $builder->profileRegistrationDone();
 	}
 
 	public function Orders(): Orders {
