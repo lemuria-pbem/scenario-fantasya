@@ -7,10 +7,13 @@ use Lemuria\Engine\Fantasya\State;
 use Lemuria\Engine\Fantasya\Turn\Options;
 use Lemuria\Lemuria;
 use Lemuria\Model\Fantasya\Party\Type;
+use Lemuria\ProfileTrait;
 use Lemuria\Scenario\Scripts;
 
 class LemuriaScripts implements Scripts
 {
+	use ProfileTrait;
+
 	private readonly Context $context;
 
 	/**
@@ -31,6 +34,7 @@ class LemuriaScripts implements Scripts
 			$script          = new Script($file, $data);
 			$this->scripts[] = $script;
 		}
+		$this->profileAndLog(__METHOD__);
 		return $this;
 	}
 
@@ -39,6 +43,7 @@ class LemuriaScripts implements Scripts
 		foreach ($this->scripts as $script) {
 			$script->play();
 		}
+		$this->profileAndLog(__METHOD__);
 		return $this;
 	}
 
@@ -52,6 +57,7 @@ class LemuriaScripts implements Scripts
 			}
 		}
 		Lemuria::Game()->setScripts($scripts);
+		$this->profileAndLog(__METHOD__);
 		return $this;
 	}
 }
